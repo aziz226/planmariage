@@ -1,3 +1,3 @@
 import 'package:flutter/material.dart';
 
-Color primaryColor = Colors.pink;
+const Color primaryColor = Colors.pink;

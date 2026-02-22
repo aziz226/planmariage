@@ -1,2 +1,2 @@
-String homeRoute = '/';
-String serviceRoute = '/plan-mariage/services';
+const String homeRoute = '/';
+const String serviceRoute = '/plan-mariage/services';

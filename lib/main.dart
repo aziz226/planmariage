@@ -13,23 +13,19 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: appName,
       theme: ThemeData(
-
         colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
       ),
-      //home: const MyHomePage(title: 'Flutter Demo Home Page'),
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: homeRoute,
       routes: {
-        '/': (context) => const HomePage(),
-        serviceRoute: (context) => ServicesPage()
+        homeRoute: (context) => const HomePage(),
+        serviceRoute: (context) => const ServicesPage(),
       },
     );
   }
 }
-
