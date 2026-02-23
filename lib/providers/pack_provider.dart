@@ -9,12 +9,28 @@ class PackProvider extends ChangeNotifier {
   PackProvider(this._repo);
 
   List<PackModel> _packs = [];
+  List<PackModel> _allPacks = [];
   bool _loading = false;
   String? _error;
 
   List<PackModel> get packs => _packs;
+  List<PackModel> get allPacks => _allPacks;
   bool get loading => _loading;
   String? get error => _error;
+
+  /// Load all packs (for home page)
+  Future<void> loadAllPacks({int? limit}) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      _allPacks = await _repo.getAllPacks(limit: limit);
+    } catch (e) {
+      _error = e.toString();
+    }
+    _loading = false;
+    notifyListeners();
+  }
 
   /// Load packs for a specific provider
   Future<void> loadProviderPacks(String providerId) async {

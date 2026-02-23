@@ -7,7 +7,10 @@ import 'package:responsive_builder/responsive_builder.dart';
 import '../core/app_colors.dart';
 import '../core/data.dart';
 import '../core/routes.dart';
+import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
+import '../providers/favorites_provider.dart';
+import '../providers/pack_provider.dart';
 import '../providers/providers_provider.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text.dart';
@@ -27,6 +30,12 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProvidersProvider>().loadFeaturedProviders();
+      context.read<PackProvider>().loadAllPacks();
+      // Load favorite IDs if authenticated
+      final auth = context.read<AuthProvider>();
+      if (auth.isAuthenticated && auth.uid != null) {
+        context.read<FavoritesProvider>().loadFavoriteIds(auth.uid!);
+      }
     });
   }
 
@@ -354,6 +363,9 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildPacksSection(BuildContext context, double width, bool isMobile, bool isTablet, bool isDesktop) {
+    final packProv = context.watch<PackProvider>();
+    final displayPacks = packProv.allPacks.isNotEmpty ? packProv.allPacks : packs;
+
     return Column(
       children: [
         RichText(
@@ -394,7 +406,7 @@ class _HomeViewState extends State<HomeView> {
           child: Wrap(
             spacing: 10,
             runSpacing: 10,
-            children: packs.map((pack) => _buildPackCard(context, pack, width, isMobile, isTablet, isDesktop)).toList(),
+            children: displayPacks.map((pack) => _buildPackCard(context, pack, width, isMobile, isTablet, isDesktop)).toList(),
           ),
         ),
         const SizedBox(height: 40),

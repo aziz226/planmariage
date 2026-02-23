@@ -9,6 +9,7 @@ import 'core/variable_name.dart';
 import 'providers/auth_provider.dart';
 import 'providers/booking_provider.dart';
 import 'providers/cart_provider.dart';
+import 'providers/favorites_provider.dart';
 import 'providers/providers_provider.dart';
 import 'providers/pack_provider.dart';
 import 'providers/review_provider.dart';
@@ -21,6 +22,8 @@ import 'screens/bookings_page.dart';
 import 'screens/cart_page.dart';
 import 'screens/checkout_page.dart';
 import 'screens/contact_page.dart';
+import 'screens/favorites_page.dart';
+import 'screens/forgot_password_page.dart';
 import 'screens/home_page.dart';
 import 'screens/login_page.dart';
 import 'screens/prestataires_page.dart';
@@ -59,6 +62,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => BookingProvider(bookingRepo)),
         ChangeNotifierProvider(create: (_) => ReviewProvider(reviewRepo)),
         ChangeNotifierProvider(create: (_) => PackProvider(packRepo)),
+        ChangeNotifierProvider(create: (_) => FavoritesProvider(userRepo)),
       ],
       child: const MyApp(),
     ),
@@ -124,6 +128,10 @@ class MyApp extends StatelessWidget {
         return MaterialPageRoute(settings: settings, builder: (_) => const CheckoutPage());
       case bookingsRoute:
         return MaterialPageRoute(settings: settings, builder: (_) => const BookingsPage());
+      case favoritesRoute:
+        return MaterialPageRoute(settings: settings, builder: (_) => const FavoritesPage());
+      case forgotPasswordRoute:
+        return MaterialPageRoute(settings: settings, builder: (_) => const ForgotPasswordPage());
       default:
         return MaterialPageRoute(settings: settings, builder: (_) => const HomePage());
     }

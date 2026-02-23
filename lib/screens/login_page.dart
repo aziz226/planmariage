@@ -42,23 +42,8 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Future<void> _resetPassword() async {
-    final email = _emailCtrl.text.trim();
-    if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Entrez votre email d\'abord')),
-      );
-      return;
-    }
-    final auth = context.read<AuthProvider>();
-    final ok = await auth.resetPassword(email);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(ok ? 'Email de réinitialisation envoyé !' : auth.error ?? 'Erreur'),
-        backgroundColor: ok ? Colors.green : Colors.red,
-      ),
-    );
+  void _goToForgotPassword() {
+    Navigator.pushNamed(context, forgotPasswordRoute);
   }
 
   @override
@@ -129,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: _resetPassword,
+                      onPressed: _goToForgotPassword,
                       child: Text(
                         'Mot de passe oublié ?',
                         style: GoogleFonts.montserrat(color: primaryColor, fontSize: 13),
