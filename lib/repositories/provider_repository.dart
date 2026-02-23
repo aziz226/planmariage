@@ -45,4 +45,29 @@ class ProviderRepository {
   Future<List<ProviderModel>> search(String query) async {
     return getProviders(searchQuery: query);
   }
+
+  /// Get featured providers (those with active subscriptions)
+  Future<List<ProviderModel>> getFeaturedProviders() async {
+    final now = DateTime.now().toIso8601String().split('T').first;
+    final response = await _db.client
+        .from(Tables.subscriptions)
+        .select('providers(*)')
+        .eq('status', 'active')
+        .gte('end_date', now);
+
+    final List<ProviderModel> result = [];
+    final seenIds = <String>{};
+    for (final row in response) {
+      if (row['providers'] != null) {
+        final provider = ProviderModel.fromJson(
+          Map<String, dynamic>.from(row['providers'] as Map),
+        );
+        if (!seenIds.contains(provider.id)) {
+          seenIds.add(provider.id);
+          result.add(provider);
+        }
+      }
+    }
+    return result;
+  }
 }

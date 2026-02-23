@@ -65,11 +65,11 @@ const List<ServiceModel> services = [
 
 const List<PackModel> packs = [
   PackModel(
-    title: "Pack Essentiel",
-    qualifier: "Populaire",
-    price: "950 000 FCFA",
+    name: "Pack Essentiel",
+    level: "Populaire",
+    price: 950000,
     description: "Pour un mariage intime et authentique",
-    includes: [
+    services: [
       "Lieu de réception (50 personnes)",
       "Décoration florale simple",
       "Photographe (4h)",
@@ -78,11 +78,11 @@ const List<PackModel> packs = [
     ],
   ),
   PackModel(
-    title: "Pack Prestige",
-    qualifier: "Recommandé",
-    price: "1 500 000 FCFA",
+    name: "Pack Prestige",
+    level: "Recommandé",
+    price: 1500000,
     description: "L'équilibre parfait entre élégance et budget",
-    includes: [
+    services: [
       "Lieu de prestige (100 personnes)",
       "Décoration personnalisée",
       "Photographe & vidéaste (8h)",
@@ -92,11 +92,11 @@ const List<PackModel> packs = [
     ],
   ),
   PackModel(
-    title: "Pack Royal",
-    qualifier: "Luxe",
-    price: "5 000 000 FCFA",
+    name: "Pack Royal",
+    level: "Luxe",
+    price: 5000000,
     description: "Le mariage de vos rêves, sans compromis",
-    includes: [
+    services: [
       "Château ou domaine d'exception (150+ personnes)",
       "Décoration haut de gamme sur mesure",
       "Photographe + vidéaste premium journée complète",

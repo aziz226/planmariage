@@ -58,7 +58,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       final booking = await bookingProv.createBooking(
         userId: auth.uid!,
         providerId: item.provider?.id,
-        packTitle: item.pack?.title,
+        packTitle: item.pack?.name,
         eventDate: _eventDate,
         totalPrice: item.price,
         paymentMethod: _paymentMethod,
