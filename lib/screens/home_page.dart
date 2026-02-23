@@ -3,7 +3,6 @@ import 'package:iconly/iconly.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
 import '../core/app_colors.dart';
-import '../core/data.dart';
 import '../core/routes.dart';
 import '../screens/footer_view.dart';
 import '../screens/home_view.dart';

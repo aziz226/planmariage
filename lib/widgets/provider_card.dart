@@ -1,11 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconly/iconly.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_colors.dart';
 import '../core/models.dart';
 import '../core/routes.dart';
+import '../providers/auth_provider.dart';
+import '../providers/favorites_provider.dart';
 import '../providers/providers_provider.dart';
 import 'rating_stars.dart';
 
@@ -18,6 +21,9 @@ class ProviderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasImage = provider.imageUrls.isNotEmpty;
     final featured = isFeatured ?? context.watch<ProvidersProvider>().isFeatured(provider.id);
+    final auth = context.watch<AuthProvider>();
+    final favProv = context.watch<FavoritesProvider>();
+    final isFav = auth.isAuthenticated && favProv.isFavorite(provider.id);
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -36,7 +42,7 @@ class ProviderCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image + badge en vedette
+            // Image + badges
             Stack(
               children: [
                 AspectRatio(
@@ -89,6 +95,41 @@ class ProviderCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                // Bouton favori
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Material(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () {
+                        if (!auth.isAuthenticated) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Connectez-vous pour ajouter aux favoris'),
+                              action: SnackBarAction(
+                                label: 'Connexion',
+                                onPressed: () => Navigator.pushNamed(context, loginRoute),
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+                        favProv.toggleFavorite(auth.uid!, provider.id);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Icon(
+                          isFav ? IconlyBold.heart : IconlyLight.heart,
+                          size: 20,
+                          color: isFav ? Colors.red : Colors.grey[700],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
             Padding(
@@ -150,12 +191,15 @@ class ProviderCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Text(
-                        'À partir de ${_formatPrice(provider.priceFrom)}',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: primaryColor,
+                      Flexible(
+                        child: Text(
+                          'À partir de ${_formatPrice(provider.priceFrom)}',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: primaryColor,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

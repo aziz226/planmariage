@@ -9,3 +9,5 @@ const String profileRoute = '/profil';
 const String cartRoute = '/panier';
 const String checkoutRoute = '/paiement';
 const String bookingsRoute = '/mes-reservations';
+const String favoritesRoute = '/mes-favoris';
+const String forgotPasswordRoute = '/mot-de-passe-oublie';

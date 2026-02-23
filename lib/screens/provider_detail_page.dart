@@ -1,12 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconly/iconly.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_colors.dart';
 import '../core/routes.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
+import '../providers/favorites_provider.dart';
 import '../providers/pack_provider.dart';
 import '../providers/providers_provider.dart';
 import '../providers/review_provider.dart';
@@ -284,6 +286,9 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
   }
 
   Widget _buildRightColumn(provider, bool inCart, AuthProvider auth, ReviewProvider reviewProv) {
+    final favProv = context.watch<FavoritesProvider>();
+    final isFav = auth.isAuthenticated && favProv.isFavorite(provider.id);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -371,30 +376,66 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
                   style: GoogleFonts.montserrat(fontSize: 22, fontWeight: FontWeight.bold, color: primaryColor),
                 ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton.icon(
-                    onPressed: inCart
-                        ? null
-                        : () {
-                            context.read<CartProvider>().addProvider(provider);
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 48,
+                        child: ElevatedButton.icon(
+                          onPressed: inCart
+                              ? null
+                              : () {
+                                  context.read<CartProvider>().addProvider(provider);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Ajouté au panier !'), backgroundColor: Colors.green),
+                                  );
+                                },
+                          icon: Icon(inCart ? Icons.check : Icons.add_shopping_cart),
+                          label: Text(
+                            inCart ? 'Déjà dans le panier' : 'Ajouter au panier',
+                            style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: Colors.grey[300],
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      height: 48,
+                      width: 48,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          if (!auth.isAuthenticated) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Ajouté au panier !'), backgroundColor: Colors.green),
+                              SnackBar(
+                                content: const Text('Connectez-vous pour ajouter aux favoris'),
+                                action: SnackBarAction(
+                                  label: 'Connexion',
+                                  onPressed: () => Navigator.pushNamed(context, loginRoute),
+                                ),
+                              ),
                             );
-                          },
-                    icon: Icon(inCart ? Icons.check : Icons.add_shopping_cart),
-                    label: Text(
-                      inCart ? 'Déjà dans le panier' : 'Ajouter au panier',
-                      style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                            return;
+                          }
+                          favProv.toggleFavorite(auth.uid!, provider.id);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: isFav ? Colors.red : Colors.grey[400]!),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: Icon(
+                          isFav ? IconlyBold.heart : IconlyLight.heart,
+                          color: isFav ? Colors.red : Colors.grey[600],
+                        ),
+                      ),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor: Colors.grey[300],
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                  ),
+                  ],
                 ),
               ],
             ),
