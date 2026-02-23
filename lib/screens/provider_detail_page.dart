@@ -496,6 +496,13 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text('Avis ajouté !'), backgroundColor: Colors.green),
                                 );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(reviewProv.error ?? 'Erreur lors de l\'envoi de l\'avis'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
                               }
                             },
                       style: ElevatedButton.styleFrom(backgroundColor: primaryColor, foregroundColor: Colors.white),
