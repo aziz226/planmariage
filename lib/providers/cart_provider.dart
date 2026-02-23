@@ -41,13 +41,9 @@ class CartProvider extends ChangeNotifier {
   }
 
   void addPack(PackModel pack) {
-    // Extraire le prix numérique depuis la chaîne
-    final priceStr = pack.price.replaceAll(RegExp(r'[^0-9]'), '');
-    final price = int.tryParse(priceStr) ?? 0;
-
     _items.add(CartItem(
       pack: pack,
-      price: price,
+      price: pack.price,
     ));
     notifyListeners();
   }

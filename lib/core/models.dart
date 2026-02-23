@@ -19,19 +19,65 @@ class ServiceModel {
 }
 
 class PackModel {
-  final String title;
-  final String qualifier;
-  final String price;
-  final String description;
-  final List<String> includes;
+  final String? id;
+  final String name;
+  final String level; // ex: "Populaire", "Recommandé", "Luxe"
+  final int price;
+  final String? description;
+  final List<String> services;
+  final String? providerId;
+
+  // Joined data
+  final String? providerName;
 
   const PackModel({
-    required this.title,
-    required this.qualifier,
+    this.id,
+    required this.name,
+    required this.level,
     required this.price,
-    required this.description,
-    required this.includes,
+    this.description,
+    required this.services,
+    this.providerId,
+    this.providerName,
   });
+
+  factory PackModel.fromJson(Map<String, dynamic> json) {
+    return PackModel(
+      id: json['id'] as String?,
+      name: json['name'] as String? ?? '',
+      level: json['level'] as String? ?? '',
+      price: json['price'] as int? ?? 0,
+      description: json['description'] as String?,
+      services: (json['services'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      providerId: json['provider_id'] as String?,
+      providerName: json['providers'] != null
+          ? (json['providers'] as Map<String, dynamic>)['name'] as String?
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'level': level,
+    'price': price,
+    'description': description,
+    'services': services,
+    'provider_id': providerId,
+  };
+
+  /// Format price as "950 000 FCFA"
+  String get formattedPrice {
+    final str = price.toString();
+    final buffer = StringBuffer();
+    for (var i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) buffer.write(' ');
+      buffer.write(str[i]);
+    }
+    return '$buffer FCFA';
+  }
 }
 
 // ── Supabase models (sérialisables JSON) ──
@@ -274,6 +320,50 @@ class ContactMessage {
   };
 }
 
+class SubscriptionModel {
+  final String id;
+  final String providerId;
+  final String planType;
+  final DateTime startDate;
+  final DateTime endDate;
+  final String status;
+  final int price;
+  final DateTime createdAt;
+
+  // Joined data
+  final ProviderModel? provider;
+
+  const SubscriptionModel({
+    required this.id,
+    required this.providerId,
+    required this.planType,
+    required this.startDate,
+    required this.endDate,
+    required this.status,
+    required this.price,
+    required this.createdAt,
+    this.provider,
+  });
+
+  factory SubscriptionModel.fromJson(Map<String, dynamic> json) {
+    return SubscriptionModel(
+      id: json['id'] as String,
+      providerId: json['provider_id'] as String,
+      planType: json['plan_type'] as String? ?? 'basic',
+      startDate: DateTime.parse(json['start_date'] as String),
+      endDate: DateTime.parse(json['end_date'] as String),
+      status: json['status'] as String? ?? 'active',
+      price: json['price'] as int? ?? 0,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      provider: json['providers'] != null
+          ? ProviderModel.fromJson(json['providers'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  bool get isActive => status == 'active' && endDate.isAfter(DateTime.now());
+}
+
 class CartItem {
   final ProviderModel? provider;
   final PackModel? pack;
@@ -285,6 +375,6 @@ class CartItem {
     required this.price,
   });
 
-  String get title => provider?.name ?? pack?.title ?? '';
-  String get subtitle => provider?.serviceCategory ?? pack?.qualifier ?? '';
+  String get title => provider?.name ?? pack?.name ?? '';
+  String get subtitle => provider?.serviceCategory ?? pack?.level ?? '';
 }

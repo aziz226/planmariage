@@ -8,12 +8,27 @@ import '../core/app_colors.dart';
 import '../core/data.dart';
 import '../core/routes.dart';
 import '../providers/cart_provider.dart';
+import '../providers/providers_provider.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text.dart';
 import '../widgets/hover_button.dart';
+import '../widgets/provider_card.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
+
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProvidersProvider>().loadFeaturedProviders();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +44,74 @@ class HomeView extends StatelessWidget {
         children: [
           _buildHeroSection(context, width, height, isMobile, isDesktop),
           SizedBox(height: isDesktop ? 60 : 20),
+          _buildFeaturedSection(context, width, isMobile, isTablet, isDesktop),
           _buildServicesSection(context, width, isMobile, isTablet, isDesktop),
           SizedBox(height: isDesktop ? 60 : 20),
           _buildPacksSection(context, width, isMobile, isTablet, isDesktop),
         ],
       );
     });
+  }
+
+  Widget _buildFeaturedSection(BuildContext context, double width, bool isMobile, bool isTablet, bool isDesktop) {
+    final provProv = context.watch<ProvidersProvider>();
+    final featured = provProv.featuredProviders;
+
+    if (provProv.featuredLoading || featured.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final cardWidth = isMobile ? width * 0.9 : isTablet ? 350.0 : width * 0.28;
+
+    return Column(
+      children: [
+        RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(children: [
+            TextSpan(
+              text: 'Prestataires ',
+              style: GoogleFonts.montserrat(
+                fontSize: isMobile ? 22 : 32,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextSpan(
+              text: 'en vedette',
+              style: GoogleFonts.montserrat(
+                fontSize: isMobile ? 22 : 32,
+                fontWeight: FontWeight.bold,
+                color: primaryColor,
+              ),
+            ),
+          ]),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: isDesktop ? width * 0.6 : width,
+          child: const AppText(
+            text: "Des prestataires de confiance sélectionnés pour la qualité de leurs services.",
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+            alignement: TextAlign.center,
+            color: Colors.black54,
+            overflow: TextOverflow.clip,
+          ),
+        ),
+        const SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: featured.map((provider) => SizedBox(
+              width: cardWidth,
+              child: ProviderCard(provider: provider),
+            )).toList(),
+          ),
+        ),
+        const SizedBox(height: 40),
+      ],
+    );
   }
 
   Widget _buildHeroSection(BuildContext context, double width, double height, bool isMobile, bool isDesktop) {
@@ -360,13 +437,13 @@ class HomeView extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 25.0),
-                  child: AppText(text: pack.title, fontSize: isMobile ? 16 : 22, fontWeight: FontWeight.bold),
+                  child: AppText(text: pack.name, fontSize: isMobile ? 16 : 22, fontWeight: FontWeight.bold),
                 ),
                 Container(
                   width: 150,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
-                    color: pack.qualifier == "Recommandé" ? Colors.green : primaryColor,
+                    color: pack.level == "Recommandé" ? Colors.green : primaryColor,
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 2),
@@ -375,7 +452,7 @@ class HomeView extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(IconlyLight.star, color: Colors.white, size: 16),
-                        AppText(text: pack.qualifier, fontWeight: FontWeight.bold, color: Colors.white),
+                        AppText(text: pack.level, fontWeight: FontWeight.bold, color: Colors.white),
                       ],
                     ),
                   ),
@@ -386,7 +463,7 @@ class HomeView extends StatelessWidget {
               textAlign: TextAlign.start,
               text: TextSpan(children: [
                 TextSpan(
-                  text: '${pack.price} ',
+                  text: '${pack.formattedPrice} ',
                   style: GoogleFonts.montserrat(
                     fontSize: isMobile ? 22 : 28,
                     fontWeight: FontWeight.bold,
@@ -407,7 +484,7 @@ class HomeView extends StatelessWidget {
               color: Colors.black54,
               overflow: TextOverflow.clip,
             ),
-            ...pack.includes.map<Widget>((item) => Row(
+            ...pack.services.map<Widget>((item) => Row(
               children: [
                 const Icon(Icons.check, color: primaryColor, size: 16),
                 const SizedBox(width: 8),
@@ -427,7 +504,7 @@ class HomeView extends StatelessWidget {
                 onPressed: () {
                   context.read<CartProvider>().addPack(pack);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('${pack.title} ajouté au panier !'), backgroundColor: Colors.green),
+                    SnackBar(content: Text('${pack.name} ajouté au panier !'), backgroundColor: Colors.green),
                   );
                   Navigator.pushNamed(context, cartRoute);
                 },

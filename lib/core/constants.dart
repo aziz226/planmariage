@@ -9,6 +9,8 @@ class Tables {
   static const String bookings = 'bookings';
   static const String favorites = 'favorites';
   static const String contactMessages = 'contact_messages';
+  static const String packs = 'packs';
+  static const String subscriptions = 'subscriptions';
 }
 
 class StorageBuckets {
