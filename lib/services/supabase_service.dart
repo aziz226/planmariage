@@ -16,29 +16,33 @@ class SupabaseService {
     bool ascending = true,
     int? limit,
   }) async {
-    var query = _client.from(table).select(select ?? '*');
+    // Phase 1 : filtres (PostgrestFilterBuilder)
+    var filterQuery = _client.from(table).select(select ?? '*');
 
     if (filters != null) {
       for (final entry in filters.entries) {
         if (entry.value != null) {
-          query = query.eq(entry.key, entry.value);
+          filterQuery = filterQuery.eq(entry.key, entry.value);
         }
       }
     }
 
     if (ilike != null && ilikeColumn != null) {
-      query = query.ilike(ilikeColumn, '%$ilike%');
+      filterQuery = filterQuery.ilike(ilikeColumn, '%$ilike%');
     }
 
+    // Phase 2 : transformations (PostgrestTransformBuilder)
+    PostgrestTransformBuilder<List<Map<String, dynamic>>> transformQuery = filterQuery;
+
     if (orderBy != null) {
-      query = query.order(orderBy, ascending: ascending);
+      transformQuery = transformQuery.order(orderBy, ascending: ascending);
     }
 
     if (limit != null) {
-      query = query.limit(limit);
+      transformQuery = transformQuery.limit(limit);
     }
 
-    final response = await query;
+    final response = await transformQuery;
     return List<Map<String, dynamic>>.from(response);
   }
 
