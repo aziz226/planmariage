@@ -1,4 +1,11 @@
-String homeRoute = '/';
-String serviceRoute = '/plan-mariage/services';
-String packRoute = '/plan-mariage/packs';
-String prestataireRoute = '/plan-mariage/prestataires';
+const String homeRoute = '/';
+const String serviceRoute = '/plan-mariage/services';
+const String prestatairesRoute = '/prestataires';
+const String providerDetailRoute = '/prestataire';
+const String contactRoute = '/contact';
+const String loginRoute = '/login';
+const String registerRoute = '/register';
+const String profileRoute = '/profil';
+const String cartRoute = '/panier';
+const String checkoutRoute = '/paiement';
+const String bookingsRoute = '/mes-reservations';
