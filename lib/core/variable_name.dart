@@ -1,1 +1,1 @@
-const String appName = 'Plan Mariage Admin';
+const String appName = 'Plan mariage';

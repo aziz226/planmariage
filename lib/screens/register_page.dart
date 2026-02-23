@@ -3,47 +3,55 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_colors.dart';
+import '../core/data.dart';
 import '../core/routes.dart';
 import '../providers/auth_provider.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  String? _selectedVille;
   bool _obscure = true;
 
   @override
   void dispose() {
+    _nameCtrl.dispose();
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
+    _phoneCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _login() async {
+  Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
-    final success = await auth.login(_emailCtrl.text.trim(), _passwordCtrl.text);
+    final success = await auth.register(
+      email: _emailCtrl.text.trim(),
+      password: _passwordCtrl.text,
+      displayName: _nameCtrl.text.trim(),
+      phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
+      ville: _selectedVille,
+    );
 
     if (!mounted) return;
     if (success) {
       Navigator.pushNamedAndRemoveUntil(context, homeRoute, (_) => false);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(auth.error ?? 'Erreur de connexion'), backgroundColor: Colors.red),
+        SnackBar(content: Text(auth.error ?? 'Erreur d\'inscription'), backgroundColor: Colors.red),
       );
     }
-  }
-
-  void _goToForgotPassword() {
-    Navigator.pushNamed(context, forgotPasswordRoute);
   }
 
   @override
@@ -57,28 +65,35 @@ class _LoginPageState extends State<LoginPage> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Container(
-            constraints: BoxConstraints(maxWidth: isWide ? 450 : double.infinity),
+            constraints: BoxConstraints(maxWidth: isWide ? 500 : double.infinity),
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Logo
                   Icon(Icons.favorite, color: primaryColor, size: 60),
                   const SizedBox(height: 16),
                   Text(
-                    'Connexion',
+                    'Créer un compte',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.montserrat(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Accédez à votre compte Plan Mariage',
+                    'Rejoignez Plan Mariage et organisez votre jour J',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.montserrat(color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 32),
+
+                  // Nom complet
+                  TextFormField(
+                    controller: _nameCtrl,
+                    decoration: _inputDecoration('Nom complet', Icons.person_outline),
+                    validator: (v) => (v == null || v.isEmpty) ? 'Nom requis' : null,
+                  ),
+                  const SizedBox(height: 16),
 
                   // Email
                   TextFormField(
@@ -109,25 +124,32 @@ class _LoginPageState extends State<LoginPage> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 16),
 
-                  // Mot de passe oublié
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: _goToForgotPassword,
-                      child: Text(
-                        'Mot de passe oublié ?',
-                        style: GoogleFonts.montserrat(color: primaryColor, fontSize: 13),
-                      ),
-                    ),
+                  // Téléphone
+                  TextFormField(
+                    controller: _phoneCtrl,
+                    keyboardType: TextInputType.phone,
+                    decoration: _inputDecoration('Téléphone (optionnel)', Icons.phone_outlined),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 16),
 
-                  // Bouton connexion
+                  // Ville
+                  DropdownButtonFormField<String>(
+                    value: _selectedVille,
+                    decoration: _inputDecoration('Ville (optionnel)', Icons.location_on_outlined),
+                    items: villes
+                        .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+                        .toList(),
+                    onChanged: (v) => setState(() => _selectedVille = v),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Bouton
                   SizedBox(
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: auth.loading ? null : _login,
+                      onPressed: auth.loading ? null : _register,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColor,
                         foregroundColor: Colors.white,
@@ -139,20 +161,19 @@ class _LoginPageState extends State<LoginPage> {
                               height: 24,
                               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                             )
-                          : Text('Se connecter', style: GoogleFonts.montserrat(fontWeight: FontWeight.w600, fontSize: 16)),
+                          : Text('Créer mon compte', style: GoogleFonts.montserrat(fontWeight: FontWeight.w600, fontSize: 16)),
                     ),
                   ),
                   const SizedBox(height: 24),
 
-                  // Lien inscription
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Pas encore de compte ?", style: GoogleFonts.montserrat(color: Colors.grey[600])),
+                      Text('Déjà un compte ?', style: GoogleFonts.montserrat(color: Colors.grey[600])),
                       TextButton(
-                        onPressed: () => Navigator.pushReplacementNamed(context, registerRoute),
+                        onPressed: () => Navigator.pushReplacementNamed(context, loginRoute),
                         child: Text(
-                          'Créer un compte',
+                          'Se connecter',
                           style: GoogleFonts.montserrat(color: primaryColor, fontWeight: FontWeight.w600),
                         ),
                       ),
