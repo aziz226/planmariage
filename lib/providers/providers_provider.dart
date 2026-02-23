@@ -9,8 +9,10 @@ class ProvidersProvider extends ChangeNotifier {
   ProvidersProvider(this._repo);
 
   List<ProviderModel> _providers = [];
+  List<ProviderModel> _featuredProviders = [];
   ProviderModel? _selectedProvider;
   bool _loading = false;
+  bool _featuredLoading = false;
   String? _error;
 
   // Filtres actifs
@@ -23,8 +25,10 @@ class ProvidersProvider extends ChangeNotifier {
   // ── Getters ──
 
   List<ProviderModel> get providers => _providers;
+  List<ProviderModel> get featuredProviders => _featuredProviders;
   ProviderModel? get selectedProvider => _selectedProvider;
   bool get loading => _loading;
+  bool get featuredLoading => _featuredLoading;
   String? get error => _error;
   String? get categoryFilter => _categoryFilter;
   String? get villeFilter => _villeFilter;
@@ -68,6 +72,18 @@ class ProvidersProvider extends ChangeNotifier {
       notifyListeners();
       return [];
     }
+  }
+
+  Future<void> loadFeaturedProviders() async {
+    _featuredLoading = true;
+    notifyListeners();
+    try {
+      _featuredProviders = await _repo.getFeaturedProviders();
+    } catch (e) {
+      _error = e.toString();
+    }
+    _featuredLoading = false;
+    notifyListeners();
   }
 
   // ── Filtres ──

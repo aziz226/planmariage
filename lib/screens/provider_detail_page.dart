@@ -7,6 +7,7 @@ import '../core/app_colors.dart';
 import '../core/routes.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
+import '../providers/pack_provider.dart';
 import '../providers/providers_provider.dart';
 import '../providers/review_provider.dart';
 import '../widgets/header.dart';
@@ -32,6 +33,7 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProvidersProvider>().loadProviderById(widget.providerId);
       context.read<ReviewProvider>().loadReviews(widget.providerId);
+      context.read<PackProvider>().loadProviderPacks(widget.providerId);
     });
   }
 
@@ -166,7 +168,118 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
         Text('Description', style: GoogleFonts.montserrat(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Text(provider.description, style: GoogleFonts.montserrat(fontSize: 15, color: Colors.grey[700], height: 1.6)),
+        const SizedBox(height: 32),
+        // Packs section
+        _buildPacksSection(),
       ],
+    );
+  }
+
+  Widget _buildPacksSection() {
+    final packProv = context.watch<PackProvider>();
+
+    if (packProv.loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (packProv.packs.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Nos Packs', style: GoogleFonts.montserrat(fontSize: 20, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        ...packProv.packs.map((pack) => _buildPackCard(pack)),
+      ],
+    );
+  }
+
+  Widget _buildPackCard(pack) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: primaryColor.withValues(alpha: 0.3)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    pack.name,
+                    style: GoogleFonts.montserrat(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: pack.level == 'Recommandé' ? Colors.green : primaryColor,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    pack.level,
+                    style: GoogleFonts.montserrat(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              pack.formattedPrice,
+              style: GoogleFonts.montserrat(fontSize: 22, fontWeight: FontWeight.bold, color: primaryColor),
+            ),
+            if (pack.description != null && pack.description!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                pack.description!,
+                style: GoogleFonts.montserrat(fontSize: 14, color: Colors.grey[600]),
+              ),
+            ],
+            if (pack.services.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              ...pack.services.map<Widget>((service) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    const Icon(Icons.check_circle_outline, color: Colors.green, size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(service, style: GoogleFonts.montserrat(fontSize: 14)),
+                    ),
+                  ],
+                ),
+              )),
+            ],
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  context.read<CartProvider>().addPack(pack);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${pack.name} ajouté au panier !'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: Text('Choisir ce pack', style: GoogleFonts.montserrat(fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
