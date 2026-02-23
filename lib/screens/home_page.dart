@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
-import 'package:plan_mariage/screens/footer_view.dart';
-import 'package:plan_mariage/screens/home_view.dart';
-import 'package:plan_mariage/widgets/header.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
 import '../core/data.dart';
+import '../core/routes.dart';
+import '../screens/footer_view.dart';
+import '../screens/home_view.dart';
+import '../widgets/header.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,6 +17,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int selectedIndex = 0;
+
+  static const List<String> _mobileRoutes = [
+    homeRoute,
+    serviceRoute,
+    prestatairesRoute,
+    contactRoute,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -43,15 +51,21 @@ class _HomePageState extends State<HomePage> {
             ? BottomNavigationBar(
                 currentIndex: selectedIndex,
                 onTap: (index) {
-                  setState(() { selectedIndex = index; });
+                  if (index == 0) {
+                    setState(() { selectedIndex = index; });
+                  } else {
+                    Navigator.pushNamed(context, _mobileRoutes[index]);
+                  }
                 },
-                items: List.generate(
-                  menuItems.length,
-                  (index) => BottomNavigationBarItem(
-                    icon: const Icon(IconlyLight.home),
-                    label: menuItems[index],
-                  ),
-                ),
+                selectedItemColor: primaryColor,
+                unselectedItemColor: Colors.grey,
+                type: BottomNavigationBarType.fixed,
+                items: const [
+                  BottomNavigationBarItem(icon: Icon(IconlyLight.home), label: 'Accueil'),
+                  BottomNavigationBarItem(icon: Icon(IconlyLight.category), label: 'Services'),
+                  BottomNavigationBarItem(icon: Icon(IconlyLight.search), label: 'Prestataires'),
+                  BottomNavigationBarItem(icon: Icon(IconlyLight.chat), label: 'Contact'),
+                ],
               )
             : null,
       );

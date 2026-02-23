@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
-import 'package:plan_mariage/widgets/hover_button.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
 import '../core/app_colors.dart';
 import '../core/data.dart';
+import '../core/routes.dart';
+import '../providers/cart_provider.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text.dart';
+import '../widgets/hover_button.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -24,17 +27,19 @@ class HomeView extends StatelessWidget {
 
       return Column(
         children: [
-          _buildHeroSection(width, height, isMobile, isDesktop),
+          _buildHeroSection(context, width, height, isMobile, isDesktop),
           SizedBox(height: isDesktop ? 60 : 20),
-          _buildServicesSection(width, isMobile, isTablet, isDesktop),
+          _buildServicesSection(context, width, isMobile, isTablet, isDesktop),
           SizedBox(height: isDesktop ? 60 : 20),
-          _buildPacksSection(width, isMobile, isTablet, isDesktop),
+          _buildPacksSection(context, width, isMobile, isTablet, isDesktop),
         ],
       );
     });
   }
 
-  Widget _buildHeroSection(double width, double height, bool isMobile, bool isDesktop) {
+  Widget _buildHeroSection(BuildContext context, double width, double height, bool isMobile, bool isDesktop) {
+    final searchCtrl = TextEditingController();
+
     return Stack(
       children: [
         Container(
@@ -109,6 +114,12 @@ class HomeView extends StatelessWidget {
                     children: [
                       Expanded(
                         child: TextFormField(
+                          controller: searchCtrl,
+                          onFieldSubmitted: (query) {
+                            if (query.isNotEmpty) {
+                              Navigator.pushNamed(context, prestatairesRoute, arguments: {'search': query});
+                            }
+                          },
                           decoration: InputDecoration(
                             hint: AppText(
                               text: 'Rechercher un service, un lieu, un prestataire...',
@@ -129,17 +140,28 @@ class HomeView extends StatelessWidget {
                           ),
                         ),
                       ),
-                      AppButton(text: 'Rechercher', onPressed: () {}),
+                      AppButton(
+                        text: 'Rechercher',
+                        onPressed: () {
+                          final query = searchCtrl.text.trim();
+                          if (query.isNotEmpty) {
+                            Navigator.pushNamed(context, prestatairesRoute, arguments: {'search': query});
+                          }
+                        },
+                      ),
                     ],
                   ),
                   Wrap(
                     runSpacing: 20,
                     spacing: 20,
                     children: [
-                      AppButton(text: 'Découvrir nos packs', onPressed: () {}),
+                      AppButton(
+                        text: 'Découvrir nos packs',
+                        onPressed: () => Navigator.pushNamed(context, serviceRoute),
+                      ),
                       AppButton(
                         text: 'Voir tous les services',
-                        onPressed: () {},
+                        onPressed: () => Navigator.pushNamed(context, serviceRoute),
                         btnColor: Colors.white,
                         textColor: primaryColor,
                       ),
@@ -154,7 +176,7 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildServicesSection(double width, bool isMobile, bool isTablet, bool isDesktop) {
+  Widget _buildServicesSection(BuildContext context, double width, bool isMobile, bool isTablet, bool isDesktop) {
     return Column(
       children: [
         RichText(
@@ -193,18 +215,23 @@ class HomeView extends StatelessWidget {
         Wrap(
           spacing: 10,
           runSpacing: 10,
-          children: services.map((service) => _buildServiceCard(service, width, isMobile, isTablet, isDesktop)).toList(),
+          children: services.map((service) => _buildServiceCard(context, service, width, isMobile, isTablet, isDesktop)).toList(),
         ),
         const SizedBox(height: 30),
-        AppButton(text: 'Voir les services', onPressed: () {}),
+        AppButton(
+          text: 'Voir les services',
+          onPressed: () => Navigator.pushNamed(context, serviceRoute),
+        ),
         const SizedBox(height: 30),
       ],
     );
   }
 
-  Widget _buildServiceCard(service, double width, bool isMobile, bool isTablet, bool isDesktop) {
+  Widget _buildServiceCard(BuildContext context, service, double width, bool isMobile, bool isTablet, bool isDesktop) {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Navigator.pushNamed(context, prestatairesRoute, arguments: {'category': service.title});
+      },
       child: Card(
         color: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -249,7 +276,7 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildPacksSection(double width, bool isMobile, bool isTablet, bool isDesktop) {
+  Widget _buildPacksSection(BuildContext context, double width, bool isMobile, bool isTablet, bool isDesktop) {
     return Column(
       children: [
         RichText(
@@ -290,7 +317,7 @@ class HomeView extends StatelessWidget {
           child: Wrap(
             spacing: 10,
             runSpacing: 10,
-            children: packs.map((pack) => _buildPackCard(pack, width, isMobile, isTablet, isDesktop)).toList(),
+            children: packs.map((pack) => _buildPackCard(context, pack, width, isMobile, isTablet, isDesktop)).toList(),
           ),
         ),
         const SizedBox(height: 40),
@@ -300,12 +327,13 @@ class HomeView extends StatelessWidget {
           color: Colors.black45,
         ),
         const SizedBox(height: 20),
-        const SizedBox(
+        SizedBox(
           height: 50,
           child: HoverButton(
             text: 'Demander un devis sur mesure',
             defaultColor: Colors.white,
             hoveringColor: primaryColor,
+            onPressed: () => Navigator.pushNamed(context, contactRoute),
           ),
         ),
         const SizedBox(height: 30),
@@ -313,7 +341,7 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildPackCard(pack, double width, bool isMobile, bool isTablet, bool isDesktop) {
+  Widget _buildPackCard(BuildContext context, pack, double width, bool isMobile, bool isTablet, bool isDesktop) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -396,6 +424,13 @@ class HomeView extends StatelessWidget {
                 text: 'Choisir ce pack',
                 defaultColor: Colors.white,
                 hoveringColor: primaryColor,
+                onPressed: () {
+                  context.read<CartProvider>().addPack(pack);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('${pack.title} ajouté au panier !'), backgroundColor: Colors.green),
+                  );
+                  Navigator.pushNamed(context, cartRoute);
+                },
               ),
             ),
           ],

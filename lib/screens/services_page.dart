@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
-import 'package:plan_mariage/screens/footer_view.dart';
-import 'package:plan_mariage/widgets/app_button.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
 import '../core/app_colors.dart';
 import '../core/data.dart';
+import '../core/routes.dart';
+import '../providers/providers_provider.dart';
+import '../widgets/app_button.dart';
 import '../widgets/app_text.dart';
 import '../widgets/header.dart';
+import '../widgets/provider_card.dart';
+import 'footer_view.dart';
 
 class ServicesPage extends StatefulWidget {
   const ServicesPage({super.key});
@@ -19,10 +23,35 @@ class ServicesPage extends StatefulWidget {
 
 class _ServicesPageState extends State<ServicesPage> {
   String? selectedValue, selectedVille;
+  final _searchCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProvidersProvider>().loadProviders();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  void _applyFilters() {
+    final prov = context.read<ProvidersProvider>();
+    prov.setCategory(selectedValue);
+    prov.setVille(selectedVille);
+    if (_searchCtrl.text.isNotEmpty) {
+      prov.setSearch(_searchCtrl.text);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final prov = context.watch<ProvidersProvider>();
 
     return ResponsiveBuilder(builder: (context, screenSize) {
       final isMobile = screenSize.isMobile;
@@ -75,7 +104,7 @@ class _ServicesPageState extends State<ServicesPage> {
                     const SizedBox(height: 20),
                     _buildFilterCard(),
                     const SizedBox(height: 20),
-                    _buildResultsList(width, isMobile),
+                    _buildResultsList(width, isMobile, prov),
                   ],
                 ),
               ),
@@ -99,6 +128,8 @@ class _ServicesPageState extends State<ServicesPage> {
             SizedBox(
               width: 250,
               child: TextFormField(
+                controller: _searchCtrl,
+                onFieldSubmitted: (_) => _applyFilters(),
                 decoration: InputDecoration(
                   hint: AppText(text: 'Rechercher ...', color: Colors.black.withOpacity(0.7)),
                   border: OutlineInputBorder(
@@ -172,108 +203,57 @@ class _ServicesPageState extends State<ServicesPage> {
                 },
               ),
             ),
-            AppButton(text: 'Filtrer', onPressed: () {}),
+            AppButton(text: 'Filtrer', onPressed: _applyFilters),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildResultsList(double width, bool isMobile) {
+  Widget _buildResultsList(double width, bool isMobile, ProvidersProvider prov) {
     return Column(
       children: [
         Row(
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: AppText(text: '${services.length} prestataires trouvés', fontSize: 22, fontWeight: FontWeight.bold),
+              child: prov.loading
+                  ? const CircularProgressIndicator()
+                  : AppText(
+                      text: '${prov.providers.length} prestataires trouvés',
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
             ),
           ],
         ),
         const SizedBox(height: 20),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: services.map((service) => _buildProviderCard(service, width, isMobile)).toList(),
-        ),
+        if (prov.providers.isEmpty && !prov.loading)
+          Padding(
+            padding: const EdgeInsets.all(40),
+            child: Column(
+              children: [
+                Icon(Icons.search_off, size: 48, color: Colors.grey[400]),
+                const SizedBox(height: 8),
+                Text('Aucun prestataire trouvé', style: GoogleFonts.montserrat(color: Colors.grey)),
+              ],
+            ),
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: prov.providers.map((p) => SizedBox(
+                width: isMobile ? width * 0.42 : 320,
+                child: ProviderCard(provider: p),
+              )).toList(),
+            ),
+          ),
         const SizedBox(height: 30),
         const FooterView(),
       ],
-    );
-  }
-
-  Widget _buildProviderCard(service, double width, bool isMobile) {
-    return InkWell(
-      onTap: () {},
-      child: Card(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        elevation: 2,
-        child: SizedBox(
-          width: isMobile ? width * 0.4 : 300,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 15,
-            children: [
-              Container(
-                height: 200,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                  ),
-                  image: DecorationImage(
-                    image: AssetImage('assets/images/hero-wedding.jpg'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  spacing: 5,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: primaryColor,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        child: AppText(text: service.title, fontWeight: FontWeight.w600, color: Colors.white),
-                      ),
-                    ),
-                    const AppText(text: "Divers Shoot", fontSize: 18, fontWeight: FontWeight.bold),
-                    const Row(
-                      children: [
-                        Icon(IconlyLight.location, color: Colors.black54, size: 16),
-                        SizedBox(width: 5),
-                        AppText(text: "Ouagadougou, Zone 1", color: Colors.black54),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    AppText(text: service.description, color: Colors.black54, overflow: TextOverflow.clip),
-                    const SizedBox(height: 10),
-                    const Row(
-                      children: [
-                        AppText(
-                          text: 'A partir de 325 000fcfa',
-                          fontWeight: FontWeight.bold,
-                          color: primaryColor,
-                          fontSize: 16,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
