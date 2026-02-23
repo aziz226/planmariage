@@ -32,8 +32,8 @@ class _HeaderState extends State<Header> {
   List<String> route= [
     homeRoute,
     serviceRoute,
-    '',
-    ''
+    prestatairesRoute,
+    contactRoute
   ];
   int selectedIndex= 0;
   bool isAuthenticated= false;

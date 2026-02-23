@@ -1,6 +1,6 @@
 // TODO: Remplacer par vos identifiants Supabase
-const String supabaseUrl = 'https://YOUR_PROJECT.supabase.co';
-const String supabaseAnonKey = 'YOUR_ANON_KEY';
+const String supabaseUrl = 'https://vdexbodmlffqcybjvvnw.supabase.co';
+const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkZXhib2RtbGZmcWN5Ymp2dm53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4MDAzMzMsImV4cCI6MjA4NzM3NjMzM30.EwFSigmjjHkhfCKB4Gx6VGADYgqkFZJ9xWQDUeUS56o';
 
 class Tables {
   static const String profiles = 'profiles';
