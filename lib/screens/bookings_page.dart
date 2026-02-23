@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
-import '../core/app_colors.dart';
 import '../core/models.dart';
 import '../providers/auth_provider.dart';
 import '../providers/booking_provider.dart';
@@ -34,53 +34,61 @@ class _BookingsPageState extends State<BookingsPage> {
     final bookingProv = context.watch<BookingProvider>();
 
     return AuthGuard(
-      child: Scaffold(
-        body: Column(
-          children: [
-            const Header(index: -1),
-            Expanded(
-              child: bookingProv.loading
-                  ? const Center(child: CircularProgressIndicator())
-                  : bookingProv.bookings.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.receipt_long_outlined, size: 80, color: Colors.grey[300]),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Aucune réservation',
-                                style: GoogleFonts.montserrat(fontSize: 20, color: Colors.grey[600]),
-                              ),
-                            ],
-                          ),
-                        )
-                      : SingleChildScrollView(
-                          padding: const EdgeInsets.all(24),
-                          child: Center(
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 800),
+      child: ResponsiveBuilder(builder: (context, screenSize) {
+        final isMobile = screenSize.isMobile;
+        final padding = isMobile ? 16.0 : 24.0;
+
+        return Scaffold(
+          body: Column(
+            children: [
+              const Header(index: -1),
+              Expanded(
+                child: bookingProv.loading
+                    ? const Center(child: CircularProgressIndicator())
+                    : bookingProv.bookings.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(padding),
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  Icon(Icons.receipt_long_outlined, size: isMobile ? 60 : 80, color: Colors.grey[300]),
+                                  const SizedBox(height: 16),
                                   Text(
-                                    'Mes réservations',
-                                    style: GoogleFonts.montserrat(fontSize: 28, fontWeight: FontWeight.bold),
+                                    'Aucune réservation',
+                                    style: GoogleFonts.montserrat(fontSize: isMobile ? 18 : 20, color: Colors.grey[600]),
                                   ),
-                                  const SizedBox(height: 20),
-                                  ...bookingProv.bookings.map((b) => _BookingCard(
-                                        booking: b,
-                                        onCancel: () => _cancel(b.id),
-                                      )),
                                 ],
                               ),
                             ),
+                          )
+                        : SingleChildScrollView(
+                            padding: EdgeInsets.all(padding),
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 800),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Mes réservations',
+                                      style: GoogleFonts.montserrat(fontSize: isMobile ? 22 : 28, fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    ...bookingProv.bookings.map((b) => _BookingCard(
+                                          booking: b,
+                                          onCancel: () => _cancel(b.id),
+                                        )),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-            ),
-          ],
-        ),
-      ),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 

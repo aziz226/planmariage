@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
 import '../core/app_colors.dart';
 import '../core/routes.dart';
@@ -132,20 +133,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final cart = context.watch<CartProvider>();
 
     return AuthGuard(
-      child: Scaffold(
-        body: Column(
-          children: [
-            const Header(index: -1),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 700),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Paiement', style: GoogleFonts.montserrat(fontSize: 28, fontWeight: FontWeight.bold)),
+      child: ResponsiveBuilder(builder: (context, screenSize) {
+        final isMobile = screenSize.isMobile;
+        final padding = isMobile ? 16.0 : 24.0;
+
+        return Scaffold(
+          body: Column(
+            children: [
+              const Header(index: -1),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(padding),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 700),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Paiement', style: GoogleFonts.montserrat(fontSize: isMobile ? 22 : 28, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 24),
 
                         // Récap commande
@@ -231,10 +236,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 

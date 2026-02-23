@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   children: [
                     const HomeView(),
-                    if (!isMobile) const FooterView(),
+                    const FooterView(),
                   ],
                 ),
               ),
