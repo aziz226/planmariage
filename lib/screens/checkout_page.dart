@@ -55,9 +55,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
     // Créer une réservation pour chaque article du panier
     bool allOk = true;
     for (final item in cart.items) {
+      // Récupérer le provider_id depuis le provider direct OU depuis le pack
+      final providerId = item.provider?.id ?? item.pack?.providerId;
+
       final booking = await bookingProv.createBooking(
         userId: auth.uid!,
-        providerId: item.provider?.id,
+        providerId: providerId,
         packTitle: item.pack?.name,
         eventDate: _eventDate,
         totalPrice: item.price,

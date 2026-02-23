@@ -240,16 +240,19 @@ class BookingModel {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'user_id': userId,
-    'provider_id': providerId,
-    'pack_title': packTitle,
-    'event_date': eventDate?.toIso8601String().split('T').first,
-    'status': status,
-    'total_price': totalPrice,
-    'payment_method': paymentMethod,
-    'notes': notes,
-  };
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{
+      'user_id': userId,
+      'status': status,
+      'total_price': totalPrice,
+    };
+    if (providerId != null) map['provider_id'] = providerId;
+    if (packTitle != null) map['pack_title'] = packTitle;
+    if (eventDate != null) map['event_date'] = eventDate!.toIso8601String().split('T').first;
+    if (paymentMethod != null) map['payment_method'] = paymentMethod;
+    if (notes != null) map['notes'] = notes;
+    return map;
+  }
 }
 
 class ReviewModel {
