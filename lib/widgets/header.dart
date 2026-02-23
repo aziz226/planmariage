@@ -131,6 +131,9 @@ class Header extends StatelessWidget {
                     offset: const Offset(0, 50),
                     onSelected: (value) {
                       switch (value) {
+                        case 'admin':
+                          Navigator.pushNamed(context, adminDashboardRoute);
+                          break;
                         case 'profile':
                           Navigator.pushNamed(context, profileRoute);
                           break;
@@ -164,6 +167,17 @@ class Header extends StatelessWidget {
                           ],
                         ),
                       ),
+                      if (auth.isAdmin)
+                        const PopupMenuItem(
+                          value: 'admin',
+                          child: Row(
+                            children: [
+                              Icon(Icons.admin_panel_settings_outlined, size: 20, color: Colors.amber),
+                              SizedBox(width: 8),
+                              Text('Panel Admin', style: TextStyle(color: Colors.amber)),
+                            ],
+                          ),
+                        ),
                       const PopupMenuItem(
                         value: 'profile',
                         child: Row(

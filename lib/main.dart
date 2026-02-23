@@ -6,6 +6,7 @@ import 'core/app_colors.dart';
 import 'core/constants.dart';
 import 'core/routes.dart';
 import 'core/variable_name.dart';
+import 'providers/admin_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/booking_provider.dart';
 import 'providers/cart_provider.dart';
@@ -14,12 +15,21 @@ import 'providers/favorites_provider.dart';
 import 'providers/providers_provider.dart';
 import 'providers/pack_provider.dart';
 import 'providers/review_provider.dart';
+import 'repositories/admin_repository.dart';
 import 'repositories/booking_repository.dart';
 import 'repositories/category_repository.dart';
 import 'repositories/pack_repository.dart';
 import 'repositories/provider_repository.dart';
 import 'repositories/review_repository.dart';
 import 'repositories/user_repository.dart';
+import 'screens/admin/admin_bookings_page.dart';
+import 'screens/admin/admin_categories_page.dart';
+import 'screens/admin/admin_dashboard_page.dart';
+import 'screens/admin/admin_messages_page.dart';
+import 'screens/admin/admin_providers_page.dart';
+import 'screens/admin/admin_reviews_page.dart';
+import 'screens/admin/admin_subscriptions_page.dart';
+import 'screens/admin/admin_users_page.dart';
 import 'screens/bookings_page.dart';
 import 'screens/cart_page.dart';
 import 'screens/checkout_page.dart';
@@ -55,6 +65,7 @@ void main() async {
   final reviewRepo = ReviewRepository(supabaseService);
   final packRepo = PackRepository(supabaseService);
   final categoryRepo = CategoryRepository(supabaseService);
+  final adminRepo = AdminRepository(supabaseService);
 
   runApp(
     MultiProvider(
@@ -67,6 +78,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => PackProvider(packRepo)),
         ChangeNotifierProvider(create: (_) => CategoryProvider(categoryRepo)),
         ChangeNotifierProvider(create: (_) => FavoritesProvider(userRepo)),
+        ChangeNotifierProvider(create: (_) => AdminProvider(adminRepo)),
       ],
       child: const MyApp(),
     ),
@@ -136,6 +148,24 @@ class MyApp extends StatelessWidget {
         return MaterialPageRoute(settings: settings, builder: (_) => const FavoritesPage());
       case forgotPasswordRoute:
         return MaterialPageRoute(settings: settings, builder: (_) => const ForgotPasswordPage());
+      // Admin routes
+      case adminRoute:
+      case adminDashboardRoute:
+        return MaterialPageRoute(settings: settings, builder: (_) => const AdminDashboardPage());
+      case adminProvidersRoute:
+        return MaterialPageRoute(settings: settings, builder: (_) => const AdminProvidersPage());
+      case adminBookingsRoute:
+        return MaterialPageRoute(settings: settings, builder: (_) => const AdminBookingsPage());
+      case adminReviewsRoute:
+        return MaterialPageRoute(settings: settings, builder: (_) => const AdminReviewsPage());
+      case adminCategoriesRoute:
+        return MaterialPageRoute(settings: settings, builder: (_) => const AdminCategoriesPage());
+      case adminUsersRoute:
+        return MaterialPageRoute(settings: settings, builder: (_) => const AdminUsersPage());
+      case adminMessagesRoute:
+        return MaterialPageRoute(settings: settings, builder: (_) => const AdminMessagesPage());
+      case adminSubscriptionsRoute:
+        return MaterialPageRoute(settings: settings, builder: (_) => const AdminSubscriptionsPage());
       default:
         return MaterialPageRoute(settings: settings, builder: (_) => const HomePage());
     }
