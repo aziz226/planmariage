@@ -10,6 +10,7 @@ class ProvidersProvider extends ChangeNotifier {
 
   List<ProviderModel> _providers = [];
   List<ProviderModel> _featuredProviders = [];
+  final Set<String> _featuredIds = {};
   ProviderModel? _selectedProvider;
   bool _loading = false;
   bool _featuredLoading = false;
@@ -26,6 +27,7 @@ class ProvidersProvider extends ChangeNotifier {
 
   List<ProviderModel> get providers => _providers;
   List<ProviderModel> get featuredProviders => _featuredProviders;
+  Set<String> get featuredIds => _featuredIds;
   ProviderModel? get selectedProvider => _selectedProvider;
   bool get loading => _loading;
   bool get featuredLoading => _featuredLoading;
@@ -79,6 +81,8 @@ class ProvidersProvider extends ChangeNotifier {
     notifyListeners();
     try {
       _featuredProviders = await _repo.getFeaturedProviders();
+      _featuredIds.clear();
+      _featuredIds.addAll(_featuredProviders.map((p) => p.id));
     } catch (e) {
       _error = e.toString();
     }
@@ -117,6 +121,9 @@ class ProvidersProvider extends ChangeNotifier {
     _sortAscending = false;
     loadProviders();
   }
+
+  /// Vérifie si un prestataire est en vedette (abonné)
+  bool isFeatured(String providerId) => _featuredIds.contains(providerId);
 
   // ── Helpers ──
 

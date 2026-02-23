@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../core/app_colors.dart';
 import '../core/data.dart';
 import '../providers/providers_provider.dart';
 import '../widgets/header.dart';
@@ -30,6 +29,7 @@ class _PrestatairesPageState extends State<PrestatairesPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final prov = context.read<ProvidersProvider>();
+      prov.loadFeaturedProviders();
       if (widget.initialCategory != null) prov.setCategory(widget.initialCategory);
       if (widget.initialSearch != null && widget.initialSearch!.isNotEmpty) {
         prov.setSearch(widget.initialSearch);
@@ -161,7 +161,7 @@ class _PrestatairesPageState extends State<PrestatairesPage> {
           Expanded(
             child: prov.loading
                 ? const Center(child: CircularProgressIndicator())
-                : prov.providers.isEmpty
+                : prov.providers.isEmpty && prov.featuredProviders.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -180,6 +180,11 @@ class _PrestatairesPageState extends State<PrestatairesPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Section prestataires sponsorisés
+                            if (prov.featuredProviders.isNotEmpty) ...[
+                              _buildPromotedSection(prov, width, crossAxisCount),
+                              const SizedBox(height: 24),
+                            ],
                             Text(
                               '${prov.providers.length} prestataire(s) trouvé(s)',
                               style: GoogleFonts.montserrat(color: Colors.grey[600]),
@@ -200,6 +205,78 @@ class _PrestatairesPageState extends State<PrestatairesPage> {
                           ],
                         ),
                       ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPromotedSection(ProvidersProvider prov, double width, int crossAxisCount) {
+    final featured = prov.featuredProviders;
+    final cardWidth = width > 1200 ? (width - 120) / 3 : (width > 700 ? (width - 80) / 2 : width - 48);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFFFFD700).withValues(alpha: 0.08),
+            const Color(0xFFFFA000).withValues(alpha: 0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFFD700).withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFFFD700), Color(0xFFFFA000)],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.star, size: 16, color: Colors.white),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Prestataires en vedette',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Sponsorisé',
+                style: GoogleFonts.montserrat(
+                  fontSize: 12,
+                  color: Colors.grey[500],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: featured.take(3).map((p) => SizedBox(
+              width: cardWidth,
+              child: ProviderCard(provider: p, isFeatured: true),
+            )).toList(),
           ),
         ],
       ),

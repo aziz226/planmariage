@@ -6,7 +6,6 @@ import 'package:responsive_builder/responsive_builder.dart';
 
 import '../core/app_colors.dart';
 import '../core/data.dart';
-import '../core/routes.dart';
 import '../providers/providers_provider.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text.dart';
@@ -29,7 +28,9 @@ class _ServicesPageState extends State<ServicesPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProvidersProvider>().loadProviders();
+      final prov = context.read<ProvidersProvider>();
+      prov.loadProviders();
+      prov.loadFeaturedProviders();
     });
   }
 
@@ -104,6 +105,7 @@ class _ServicesPageState extends State<ServicesPage> {
                     const SizedBox(height: 20),
                     _buildFilterCard(),
                     const SizedBox(height: 20),
+                    _buildPromotedBanner(prov, isMobile),
                     _buildResultsList(width, isMobile, prov),
                   ],
                 ),
@@ -204,6 +206,86 @@ class _ServicesPageState extends State<ServicesPage> {
               ),
             ),
             AppButton(text: 'Filtrer', onPressed: _applyFilters),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPromotedBanner(ProvidersProvider prov, bool isMobile) {
+    final featured = prov.featuredProviders;
+    if (featured.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFFFFD700).withValues(alpha: 0.1),
+              const Color(0xFFFFA000).withValues(alpha: 0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFFFD700).withValues(alpha: 0.3)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFFD700), Color(0xFFFFA000)],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.star, size: 16, color: Colors.white),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Prestataires en vedette',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Sponsorisé',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: isMobile ? 280 : 310,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: featured.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 16),
+                itemBuilder: (_, i) => SizedBox(
+                  width: isMobile ? 220 : 320,
+                  child: ProviderCard(provider: featured[i], isFeatured: true),
+                ),
+              ),
+            ),
           ],
         ),
       ),

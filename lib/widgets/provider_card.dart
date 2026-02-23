@@ -1,24 +1,33 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 import '../core/app_colors.dart';
 import '../core/models.dart';
 import '../core/routes.dart';
+import '../providers/providers_provider.dart';
 import 'rating_stars.dart';
 
 class ProviderCard extends StatelessWidget {
   final ProviderModel provider;
-  const ProviderCard({super.key, required this.provider});
+  final bool? isFeatured;
+  const ProviderCard({super.key, required this.provider, this.isFeatured});
 
   @override
   Widget build(BuildContext context) {
     final hasImage = provider.imageUrls.isNotEmpty;
+    final featured = isFeatured ?? context.watch<ProvidersProvider>().isFeatured(provider.id);
 
     return Card(
       clipBehavior: Clip.antiAlias,
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: featured ? 4 : 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: featured
+            ? const BorderSide(color: Color(0xFFFFD700), width: 2)
+            : BorderSide.none,
+      ),
       child: InkWell(
         onTap: () => Navigator.pushNamed(
           context,
@@ -27,20 +36,60 @@ class ProviderCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image
-            AspectRatio(
-              aspectRatio: 16 / 10,
-              child: hasImage
-                  ? CachedNetworkImage(
-                      imageUrl: provider.imageUrls.first,
-                      fit: BoxFit.cover,
-                      placeholder: (_, __) => Container(
-                        color: Colors.grey[200],
-                        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            // Image + badge en vedette
+            Stack(
+              children: [
+                AspectRatio(
+                  aspectRatio: 16 / 10,
+                  child: hasImage
+                      ? CachedNetworkImage(
+                          imageUrl: provider.imageUrls.first,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => Container(
+                            color: Colors.grey[200],
+                            child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                          ),
+                          errorWidget: (_, __, ___) => _placeholder(),
+                        )
+                      : _placeholder(),
+                ),
+                if (featured)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFFD700), Color(0xFFFFA000)],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                      errorWidget: (_, __, ___) => _placeholder(),
-                    )
-                  : _placeholder(),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.star, size: 14, color: Colors.white),
+                          const SizedBox(width: 4),
+                          Text(
+                            'En vedette',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
             ),
             Padding(
               padding: const EdgeInsets.all(12),
