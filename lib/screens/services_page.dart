@@ -6,6 +6,7 @@ import 'package:responsive_builder/responsive_builder.dart';
 
 import '../core/app_colors.dart';
 import '../core/data.dart';
+import '../providers/category_provider.dart';
 import '../providers/providers_provider.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text.dart';
@@ -31,6 +32,7 @@ class _ServicesPageState extends State<ServicesPage> {
       final prov = context.read<ProvidersProvider>();
       prov.loadProviders();
       prov.loadFeaturedProviders();
+      context.read<CategoryProvider>().loadCategories();
     });
   }
 
@@ -168,9 +170,9 @@ class _ServicesPageState extends State<ServicesPage> {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
                 value: selectedValue,
-                items: services.map((s) => DropdownMenuItem(
-                  value: s.title,
-                  child: AppText(text: s.title),
+                items: context.watch<CategoryProvider>().categories.map((c) => DropdownMenuItem(
+                  value: c.name,
+                  child: AppText(text: c.name),
                 )).toList(),
                 onChanged: (value) {
                   setState(() { selectedValue = value; });

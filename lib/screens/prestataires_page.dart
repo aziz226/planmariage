@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../core/data.dart';
+import '../providers/category_provider.dart';
 import '../providers/providers_provider.dart';
 import '../widgets/header.dart';
 import '../widgets/provider_card.dart';
@@ -30,6 +31,7 @@ class _PrestatairesPageState extends State<PrestatairesPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final prov = context.read<ProvidersProvider>();
       prov.loadFeaturedProviders();
+      context.read<CategoryProvider>().loadCategories();
       if (widget.initialCategory != null) prov.setCategory(widget.initialCategory);
       if (widget.initialSearch != null && widget.initialSearch!.isNotEmpty) {
         prov.setSearch(widget.initialSearch);
@@ -83,7 +85,7 @@ class _PrestatairesPageState extends State<PrestatairesPage> {
                 _buildDropdown(
                   value: _selectedCategory,
                   hint: 'Catégorie',
-                  items: services.map((s) => s.title).toList(),
+                  items: context.watch<CategoryProvider>().categoryNames,
                   onChanged: (v) {
                     setState(() => _selectedCategory = v);
                     prov.setCategory(v);

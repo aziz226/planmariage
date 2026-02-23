@@ -11,6 +11,7 @@ class Tables {
   static const String contactMessages = 'contact_messages';
   static const String packs = 'packs';
   static const String subscriptions = 'subscriptions';
+  static const String categories = 'categories';
 }
 
 class StorageBuckets {
