@@ -18,6 +18,74 @@ class ServiceModel {
   });
 }
 
+// ── Catégorie (depuis la base de données) ──
+
+class CategoryModel {
+  final String id;
+  final String name;
+  final String? icon;
+  final int providerCount;
+
+  const CategoryModel({
+    required this.id,
+    required this.name,
+    this.icon,
+    this.providerCount = 0,
+  });
+
+  factory CategoryModel.fromJson(Map<String, dynamic> json) => CategoryModel(
+    id: json['id'] as String? ?? '',
+    name: json['name'] as String? ?? '',
+    icon: json['icon'] as String?,
+    providerCount: json['provider_count'] as int? ?? 0,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'icon': icon,
+  };
+
+  /// Mappe le nom d'icône stocké en base vers un IconData Flutter.
+  IconData get iconData {
+    switch (icon?.toLowerCase()) {
+      case 'palette':
+      case 'palette_outlined':
+        return Icons.palette_outlined;
+      case 'shirt':
+      case 'shirt_outline':
+        return Icons.checkroom;
+      case 'car':
+      case 'car_detailed':
+        return Icons.directions_car;
+      case 'building':
+      case 'building_2_fill':
+        return Icons.apartment;
+      case 'music':
+      case 'music_note':
+      case 'music_note_2':
+        return Icons.music_note;
+      case 'camera':
+        return Icons.camera_alt;
+      case 'restaurant':
+        return Icons.restaurant;
+      case 'rose':
+      case 'rose_outline':
+      case 'flower':
+        return Icons.local_florist;
+      case 'cake':
+        return Icons.cake;
+      case 'ring':
+        return Icons.diamond;
+      case 'spa':
+        return Icons.spa;
+      case 'video':
+        return Icons.videocam;
+      default:
+        return Icons.category;
+    }
+  }
+}
+
 class PackModel {
   final String? id;
   final String name;

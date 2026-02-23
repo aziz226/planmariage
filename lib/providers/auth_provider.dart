@@ -13,6 +13,7 @@ class AuthProvider extends ChangeNotifier {
 
   UserModel? _user;
   bool _loading = false;
+  bool _initializing = true; // true tant que la session initiale n'est pas vérifiée
   String? _error;
   StreamSubscription<AuthState>? _authSub;
 
@@ -25,6 +26,7 @@ class AuthProvider extends ChangeNotifier {
   UserModel? get user => _user;
   bool get isAuthenticated => _user != null;
   bool get loading => _loading;
+  bool get initializing => _initializing;
   String? get error => _error;
   String? get uid => _authService.currentUser?.id;
 
@@ -38,12 +40,19 @@ class AuthProvider extends ChangeNotifier {
         _loadProfile();
       } else if (event == AuthChangeEvent.signedOut) {
         _user = null;
+        _initializing = false;
         notifyListeners();
       }
     });
-    // Charger le profil si déjà connecté
+    // Charger le profil si déjà connecté (session persistée)
     if (_authService.currentUser != null) {
-      _loadProfile();
+      _loadProfile().then((_) {
+        _initializing = false;
+        notifyListeners();
+      });
+    } else {
+      _initializing = false;
+      notifyListeners();
     }
   }
 

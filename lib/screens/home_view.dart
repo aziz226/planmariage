@@ -6,9 +6,11 @@ import 'package:responsive_builder/responsive_builder.dart';
 
 import '../core/app_colors.dart';
 import '../core/data.dart';
+import '../core/models.dart';
 import '../core/routes.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
+import '../providers/category_provider.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/pack_provider.dart';
 import '../providers/providers_provider.dart';
@@ -31,6 +33,7 @@ class _HomeViewState extends State<HomeView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProvidersProvider>().loadFeaturedProviders();
       context.read<PackProvider>().loadAllPacks();
+      context.read<CategoryProvider>().loadCategories();
       // Load favorite IDs if authenticated
       final auth = context.read<AuthProvider>();
       if (auth.isAuthenticated && auth.uid != null) {
@@ -263,6 +266,9 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildServicesSection(BuildContext context, double width, bool isMobile, bool isTablet, bool isDesktop) {
+    final catProv = context.watch<CategoryProvider>();
+    final dbCategories = catProv.categories;
+
     return Column(
       children: [
         RichText(
@@ -298,11 +304,24 @@ class _HomeViewState extends State<HomeView> {
           ),
         ),
         const SizedBox(height: 20),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: services.map((service) => _buildServiceCard(context, service, width, isMobile, isTablet, isDesktop)).toList(),
-        ),
+        if (catProv.loading)
+          const Padding(
+            padding: EdgeInsets.all(40),
+            child: CircularProgressIndicator(),
+          )
+        else if (dbCategories.isNotEmpty)
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: dbCategories.map((cat) => _buildCategoryCard(context, cat, width, isMobile, isTablet, isDesktop)).toList(),
+          )
+        else
+          // Fallback sur les services statiques si la base est vide
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: services.map((service) => _buildStaticServiceCard(context, service, width, isMobile, isTablet, isDesktop)).toList(),
+          ),
         const SizedBox(height: 30),
         AppButton(
           text: 'Voir les services',
@@ -313,7 +332,43 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildServiceCard(BuildContext context, service, double width, bool isMobile, bool isTablet, bool isDesktop) {
+  Widget _buildCategoryCard(BuildContext context, CategoryModel cat, double width, bool isMobile, bool isTablet, bool isDesktop) {
+    return InkWell(
+      onTap: () {
+        Navigator.pushNamed(context, prestatairesRoute, arguments: {'category': cat.name});
+      },
+      child: Card(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 2,
+        child: SizedBox(
+          width: isMobile ? width * 0.4 : isTablet ? 300 : width * 0.2,
+          height: isDesktop ? 250 : isTablet ? 250 : 200,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 15,
+            children: [
+              CircleAvatar(
+                radius: isMobile ? 25 : 35,
+                backgroundColor: primaryColor.withOpacity(0.1),
+                child: Icon(cat.iconData, size: isMobile ? 25 : 35, color: primaryColor),
+              ),
+              AppText(text: cat.name, fontSize: isMobile ? 14 : 16, fontWeight: FontWeight.w600),
+              if (cat.providerCount > 0)
+                AppText(
+                  text: "${cat.providerCount}+ prestataires",
+                  fontWeight: FontWeight.bold,
+                  color: primaryColor,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStaticServiceCard(BuildContext context, service, double width, bool isMobile, bool isTablet, bool isDesktop) {
     return InkWell(
       onTap: () {
         Navigator.pushNamed(context, prestatairesRoute, arguments: {'category': service.title});

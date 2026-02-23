@@ -9,11 +9,13 @@ import 'core/variable_name.dart';
 import 'providers/auth_provider.dart';
 import 'providers/booking_provider.dart';
 import 'providers/cart_provider.dart';
+import 'providers/category_provider.dart';
 import 'providers/favorites_provider.dart';
 import 'providers/providers_provider.dart';
 import 'providers/pack_provider.dart';
 import 'providers/review_provider.dart';
 import 'repositories/booking_repository.dart';
+import 'repositories/category_repository.dart';
 import 'repositories/pack_repository.dart';
 import 'repositories/provider_repository.dart';
 import 'repositories/review_repository.dart';
@@ -52,6 +54,7 @@ void main() async {
   final bookingRepo = BookingRepository(supabaseService);
   final reviewRepo = ReviewRepository(supabaseService);
   final packRepo = PackRepository(supabaseService);
+  final categoryRepo = CategoryRepository(supabaseService);
 
   runApp(
     MultiProvider(
@@ -62,6 +65,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => BookingProvider(bookingRepo)),
         ChangeNotifierProvider(create: (_) => ReviewProvider(reviewRepo)),
         ChangeNotifierProvider(create: (_) => PackProvider(packRepo)),
+        ChangeNotifierProvider(create: (_) => CategoryProvider(categoryRepo)),
         ChangeNotifierProvider(create: (_) => FavoritesProvider(userRepo)),
       ],
       child: const MyApp(),

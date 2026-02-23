@@ -14,6 +14,13 @@ class AuthGuard extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
 
+    // Attendre que la session initiale soit vérifiée avant de rediriger
+    if (auth.initializing) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     if (!auth.isAuthenticated) {
       // Redirection après le build
       WidgetsBinding.instance.addPostFrameCallback((_) {
