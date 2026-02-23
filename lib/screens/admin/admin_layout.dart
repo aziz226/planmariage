@@ -44,9 +44,14 @@ class AdminLayout extends StatelessWidget {
                 foregroundColor: Colors.white,
                 actions: [
                   IconButton(
-                    icon: const Icon(Icons.home_outlined),
-                    tooltip: 'Retour au site',
-                    onPressed: () => Navigator.pushNamedAndRemoveUntil(context, homeRoute, (_) => false),
+                    icon: const Icon(Icons.logout),
+                    tooltip: 'Déconnexion',
+                    onPressed: () async {
+                      await context.read<AuthProvider>().logout();
+                      if (context.mounted) {
+                        Navigator.pushNamedAndRemoveUntil(context, loginRoute, (_) => false);
+                      }
+                    },
                   ),
                 ],
               )
@@ -101,11 +106,16 @@ class AdminLayout extends StatelessWidget {
             ),
           ),
           const Divider(color: Colors.white24, height: 1),
-          // Retour au site
+          // Déconnexion
           ListTile(
-            leading: const Icon(Icons.arrow_back, color: Colors.white70, size: 20),
-            title: Text('Retour au site', style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 13)),
-            onTap: () => Navigator.pushNamedAndRemoveUntil(context, homeRoute, (_) => false),
+            leading: const Icon(Icons.logout, color: Colors.white70, size: 20),
+            title: Text('Déconnexion', style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 13)),
+            onTap: () async {
+              await context.read<AuthProvider>().logout();
+              if (context.mounted) {
+                Navigator.pushNamedAndRemoveUntil(context, loginRoute, (_) => false);
+              }
+            },
           ),
           const SizedBox(height: 8),
         ],
@@ -192,9 +202,14 @@ class AdminLayout extends StatelessWidget {
               ),
               const Divider(color: Colors.white24, height: 1),
               ListTile(
-                leading: const Icon(Icons.arrow_back, color: Colors.white70, size: 20),
-                title: Text('Retour au site', style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 13)),
-                onTap: () => Navigator.pushNamedAndRemoveUntil(context, homeRoute, (_) => false),
+                leading: const Icon(Icons.logout, color: Colors.white70, size: 20),
+                title: Text('Déconnexion', style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 13)),
+                onTap: () async {
+                  await context.read<AuthProvider>().logout();
+                  if (context.mounted) {
+                    Navigator.pushNamedAndRemoveUntil(context, loginRoute, (_) => false);
+                  }
+                },
               ),
             ],
           ),

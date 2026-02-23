@@ -34,16 +34,24 @@ class _LoginPageState extends State<LoginPage> {
 
     if (!mounted) return;
     if (success) {
-      Navigator.pushNamedAndRemoveUntil(context, homeRoute, (_) => false);
+      // Vérifier que l'utilisateur est admin
+      if (!auth.isAdmin) {
+        await auth.logout();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Accès réservé aux administrateurs'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+      Navigator.pushNamedAndRemoveUntil(context, adminDashboardRoute, (_) => false);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(auth.error ?? 'Erreur de connexion'), backgroundColor: Colors.red),
       );
     }
-  }
-
-  void _goToForgotPassword() {
-    Navigator.pushNamed(context, forgotPasswordRoute);
   }
 
   @override
@@ -65,16 +73,16 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Logo
-                  Icon(Icons.favorite, color: primaryColor, size: 60),
+                  Icon(Icons.admin_panel_settings, color: primaryColor, size: 60),
                   const SizedBox(height: 16),
                   Text(
-                    'Connexion',
+                    'Administration',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.montserrat(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Accédez à votre compte Plan Mariage',
+                    'Panneau d\'administration Plan Mariage',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.montserrat(color: Colors.grey[600]),
                   ),
@@ -109,19 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                       return null;
                     },
                   ),
-
-                  // Mot de passe oublié
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: _goToForgotPassword,
-                      child: Text(
-                        'Mot de passe oublié ?',
-                        style: GoogleFonts.montserrat(color: primaryColor, fontSize: 13),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 24),
 
                   // Bouton connexion
                   SizedBox(
@@ -141,22 +137,6 @@ class _LoginPageState extends State<LoginPage> {
                             )
                           : Text('Se connecter', style: GoogleFonts.montserrat(fontWeight: FontWeight.w600, fontSize: 16)),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Lien inscription
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Pas encore de compte ?", style: GoogleFonts.montserrat(color: Colors.grey[600])),
-                      TextButton(
-                        onPressed: () => Navigator.pushReplacementNamed(context, registerRoute),
-                        child: Text(
-                          'Créer un compte',
-                          style: GoogleFonts.montserrat(color: primaryColor, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),

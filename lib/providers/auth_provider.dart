@@ -71,6 +71,7 @@ class AuthProvider extends ChangeNotifier {
           phone: _user!.phone,
           photoUrl: _user!.photoUrl,
           ville: _user!.ville,
+          role: _user!.role,
           createdAt: _user!.createdAt,
         );
       }
