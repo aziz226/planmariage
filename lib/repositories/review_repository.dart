@@ -19,7 +19,11 @@ class ReviewRepository {
   }
 
   Future<ReviewModel> addReview(ReviewModel review) async {
-    final data = await _db.insert(Tables.reviews, review.toJson());
+    final data = await _db.insert(
+      Tables.reviews,
+      review.toJson(),
+      select: '*, profiles(display_name)',
+    );
 
     // Mettre à jour la note moyenne du prestataire
     await _updateProviderRating(review.providerId);

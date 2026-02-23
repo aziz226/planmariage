@@ -57,8 +57,8 @@ class SupabaseService {
   }
 
   /// INSERT
-  Future<Map<String, dynamic>> insert(String table, Map<String, dynamic> data) async {
-    final response = await _client.from(table).insert(data).select().single();
+  Future<Map<String, dynamic>> insert(String table, Map<String, dynamic> data, {String? select}) async {
+    final response = await _client.from(table).insert(data).select(select ?? '*').single();
     return response;
   }
 
