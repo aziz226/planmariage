@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
 import '../core/app_colors.dart';
 import '../core/routes.dart';
@@ -52,8 +53,6 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
     final auth = context.watch<AuthProvider>();
     final cart = context.watch<CartProvider>();
     final provider = provProv.selectedProvider;
-    final width = MediaQuery.of(context).size.width;
-    final isWide = width > 800;
 
     if (provProv.loading || provider == null) {
       return Scaffold(
@@ -68,39 +67,44 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
 
     final inCart = cart.containsProvider(provider.id);
 
-    return Scaffold(
-      body: Column(
-        children: [
-          const Header(index: 2),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1100),
-                  child: isWide
-                      ? Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(flex: 3, child: _buildLeftColumn(provider)),
-                            const SizedBox(width: 32),
-                            Expanded(flex: 2, child: _buildRightColumn(provider, inCart, auth, reviewProv)),
-                          ],
-                        )
-                      : Column(
-                          children: [
-                            _buildLeftColumn(provider),
-                            const SizedBox(height: 24),
-                            _buildRightColumn(provider, inCart, auth, reviewProv),
-                          ],
-                        ),
+    return ResponsiveBuilder(builder: (context, screenSize) {
+      final isMobile = screenSize.isMobile;
+      final padding = isMobile ? 16.0 : 24.0;
+
+      return Scaffold(
+        body: Column(
+          children: [
+            const Header(index: 2),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(padding),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1100),
+                    child: isMobile
+                        ? Column(
+                            children: [
+                              _buildLeftColumn(provider),
+                              const SizedBox(height: 24),
+                              _buildRightColumn(provider, inCart, auth, reviewProv),
+                            ],
+                          )
+                        : Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(flex: 3, child: _buildLeftColumn(provider)),
+                              const SizedBox(width: 32),
+                              Expanded(flex: 2, child: _buildRightColumn(provider, inCart, auth, reviewProv)),
+                            ],
+                          ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildLeftColumn(provider) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
 import '../core/app_colors.dart';
 import '../core/routes.dart';
@@ -32,25 +33,29 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final crossAxisCount = width > 1200 ? 3 : (width > 700 ? 2 : 1);
-
     return AuthGuard(
-      child: Scaffold(
-        body: Column(
-          children: [
-            const Header(index: -1),
-            Expanded(
-              child: _buildContent(crossAxisCount),
-            ),
-          ],
-        ),
-      ),
+      child: ResponsiveBuilder(builder: (context, screenSize) {
+        final isMobile = screenSize.isMobile;
+        final isTablet = screenSize.isTablet;
+        final crossAxisCount = isMobile ? 1 : (isTablet ? 2 : 3);
+
+        return Scaffold(
+          body: Column(
+            children: [
+              const Header(index: -1),
+              Expanded(
+                child: _buildContent(crossAxisCount, isMobile),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
-  Widget _buildContent(int crossAxisCount) {
+  Widget _buildContent(int crossAxisCount, bool isMobile) {
     final favProv = context.watch<FavoritesProvider>();
+    final padding = isMobile ? 16.0 : 24.0;
 
     if (favProv.loading) {
       return const Center(child: CircularProgressIndicator());
@@ -58,45 +63,49 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
     if (favProv.favorites.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(IconlyLight.heart, size: 80, color: Colors.grey[300]),
-            const SizedBox(height: 16),
-            Text(
-              'Aucun favori pour le moment',
-              style: GoogleFonts.montserrat(fontSize: 20, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Ajoutez des prestataires à vos favoris pour les retrouver ici',
-              style: GoogleFonts.montserrat(fontSize: 14, color: Colors.grey[500]),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () => Navigator.pushNamed(context, prestatairesRoute),
-              icon: const Icon(IconlyLight.search),
-              label: const Text('Découvrir les prestataires'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        child: Padding(
+          padding: EdgeInsets.all(padding),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(IconlyLight.heart, size: isMobile ? 60 : 80, color: Colors.grey[300]),
+              const SizedBox(height: 16),
+              Text(
+                'Aucun favori pour le moment',
+                style: GoogleFonts.montserrat(fontSize: isMobile ? 18 : 20, color: Colors.grey[600]),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                'Ajoutez des prestataires à vos favoris pour les retrouver ici',
+                style: GoogleFonts.montserrat(fontSize: isMobile ? 13 : 14, color: Colors.grey[500]),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => Navigator.pushNamed(context, prestatairesRoute),
+                icon: const Icon(IconlyLight.search),
+                label: const Text('Découvrir les prestataires'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(padding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Mes favoris',
-            style: GoogleFonts.montserrat(fontSize: 24, fontWeight: FontWeight.bold),
+            style: GoogleFonts.montserrat(fontSize: isMobile ? 20 : 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(

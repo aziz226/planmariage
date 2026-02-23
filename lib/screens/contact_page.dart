@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/app_colors.dart';
@@ -63,51 +64,53 @@ class _ContactPageState extends State<ContactPage> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final isWide = width > 800;
+    return ResponsiveBuilder(builder: (context, screenSize) {
+      final isMobile = screenSize.isMobile;
+      final padding = isMobile ? 16.0 : 24.0;
 
-    return Scaffold(
-      body: Column(
-        children: [
-          const Header(index: 3),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 900),
-                  child: isWide
-                      ? Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(child: _buildInfo()),
-                            const SizedBox(width: 40),
-                            Expanded(child: _buildForm()),
-                          ],
-                        )
-                      : Column(
-                          children: [
-                            _buildInfo(),
-                            const SizedBox(height: 32),
-                            _buildForm(),
-                          ],
-                        ),
+      return Scaffold(
+        body: Column(
+          children: [
+            const Header(index: 3),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(padding),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 900),
+                    child: isMobile
+                        ? Column(
+                            children: [
+                              _buildInfo(isMobile),
+                              const SizedBox(height: 32),
+                              _buildForm(),
+                            ],
+                          )
+                        : Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(child: _buildInfo(isMobile)),
+                              const SizedBox(width: 40),
+                              Expanded(child: _buildForm()),
+                            ],
+                          ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
-  Widget _buildInfo() {
+  Widget _buildInfo(bool isMobile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Contactez-nous',
-          style: GoogleFonts.montserrat(fontSize: 32, fontWeight: FontWeight.bold),
+          style: GoogleFonts.montserrat(fontSize: isMobile ? 24 : 32, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Text(

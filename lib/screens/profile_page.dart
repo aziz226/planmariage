@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
 import '../core/app_colors.dart';
 import '../core/data.dart';
@@ -58,24 +59,29 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return AuthGuard(
-      child: Scaffold(
-        body: Column(
-          children: [
-            const Header(index: -1),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 600),
-                    child: _buildContent(),
+      child: ResponsiveBuilder(builder: (context, screenSize) {
+        final isMobile = screenSize.isMobile;
+        final padding = isMobile ? 16.0 : 24.0;
+
+        return Scaffold(
+          body: Column(
+            children: [
+              const Header(index: -1),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(padding),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: _buildContent(),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
