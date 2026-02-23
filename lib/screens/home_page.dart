@@ -6,6 +6,7 @@ import 'package:plan_mariage/core/app_colors.dart';
 import 'package:plan_mariage/core/variable_name.dart';
 import 'package:plan_mariage/screens/footer_view.dart';
 import 'package:plan_mariage/screens/home_view.dart';
+import 'package:plan_mariage/screens/prestataires_pages.dart';
 import 'package:plan_mariage/screens/services_page.dart';
 import 'package:plan_mariage/widgets/app_button.dart';
 import 'package:plan_mariage/widgets/app_text.dart';
@@ -32,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   List<Widget> page= [
     HomeView(),
     ServicesPage(),
-    HomeView(),
+    PrestatairesPages(),
     ServicesPage(),
   ];
   int selectedIndex= 0;
