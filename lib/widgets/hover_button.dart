@@ -6,7 +6,8 @@ import '../core/app_colors.dart';
 class HoverButton extends StatelessWidget {
   final String text;
   final Color defaultColor, hoveringColor;
-  const HoverButton({super.key, required this.text, required this.defaultColor, required this.hoveringColor});
+  final VoidCallback? onPressed;
+  const HoverButton({super.key, required this.text, required this.defaultColor, required this.hoveringColor, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +37,7 @@ class HoverButton extends StatelessWidget {
         ),
 
       ),
-      onPressed: () {},
+      onPressed: onPressed ?? () {},
       child: Text(text, style: GoogleFonts.montserrat(),),
     );
   }

@@ -1,0 +1,111 @@
+import 'package:flutter/foundation.dart';
+
+import '../core/models.dart';
+import '../repositories/provider_repository.dart';
+
+class ProvidersProvider extends ChangeNotifier {
+  final ProviderRepository _repo;
+
+  ProvidersProvider(this._repo);
+
+  List<ProviderModel> _providers = [];
+  ProviderModel? _selectedProvider;
+  bool _loading = false;
+  String? _error;
+
+  // Filtres actifs
+  String? _categoryFilter;
+  String? _villeFilter;
+  String? _searchQuery;
+  String _sortBy = 'created_at';
+  bool _sortAscending = false;
+
+  // ── Getters ──
+
+  List<ProviderModel> get providers => _providers;
+  ProviderModel? get selectedProvider => _selectedProvider;
+  bool get loading => _loading;
+  String? get error => _error;
+  String? get categoryFilter => _categoryFilter;
+  String? get villeFilter => _villeFilter;
+  String? get searchQuery => _searchQuery;
+
+  // ── Chargement ──
+
+  Future<void> loadProviders() async {
+    _setLoading(true);
+    _error = null;
+    try {
+      _providers = await _repo.getProviders(
+        serviceCategory: _categoryFilter,
+        ville: _villeFilter,
+        searchQuery: _searchQuery,
+        orderBy: _sortBy,
+        ascending: _sortAscending,
+      );
+    } catch (e) {
+      _error = e.toString();
+    }
+    _setLoading(false);
+  }
+
+  Future<void> loadProviderById(String id) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      _selectedProvider = await _repo.getById(id);
+    } catch (e) {
+      _error = e.toString();
+    }
+    _setLoading(false);
+  }
+
+  Future<List<ProviderModel>> getByCategory(String category, {int? limit}) async {
+    try {
+      return await _repo.getByCategory(category, limit: limit);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return [];
+    }
+  }
+
+  // ── Filtres ──
+
+  void setCategory(String? category) {
+    _categoryFilter = category;
+    loadProviders();
+  }
+
+  void setVille(String? ville) {
+    _villeFilter = ville;
+    loadProviders();
+  }
+
+  void setSearch(String? query) {
+    _searchQuery = (query != null && query.isEmpty) ? null : query;
+    loadProviders();
+  }
+
+  void setSortBy(String field, {bool ascending = false}) {
+    _sortBy = field;
+    _sortAscending = ascending;
+    loadProviders();
+  }
+
+  void clearFilters() {
+    _categoryFilter = null;
+    _villeFilter = null;
+    _searchQuery = null;
+    _sortBy = 'created_at';
+    _sortAscending = false;
+    loadProviders();
+  }
+
+  // ── Helpers ──
+
+  void _setLoading(bool v) {
+    _loading = v;
+    notifyListeners();
+  }
+}
