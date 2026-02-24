@@ -11,7 +11,7 @@ import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
 import 'app_text.dart';
 
-class Header extends StatelessWidget {
+class Header extends StatelessWidget implements PreferredSizeWidget {
   final int index;
   const Header({super.key, required this.index});
 
@@ -44,15 +44,31 @@ class Header extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            // Menu hamburger (mobile uniquement)
+            /*if (isMobile)
+              Builder(builder: (context) {
+                return IconButton(
+                  icon: const Icon(Icons.menu, color: Colors.black87),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                );
+              }),*/
+            if (isMobile)
+              SizedBox(),
             // Logo
             if (isDesktop)
               GestureDetector(
                 onTap: () => Navigator.pushNamed(context, homeRoute),
                 child: Row(
                   children: [
-                    Icon(CupertinoIcons.heart_fill, color: primaryColor, size: 40),
+                    Icon(CupertinoIcons.heart_fill,
+                        color: primaryColor, size: 40),
                     const SizedBox(width: 4),
-                    AppText(text: appName, fontWeight: FontWeight.bold, fontSize: 32),
+                    AppText(
+                        text: appName,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 32),
                   ],
                 ),
               ),
@@ -60,18 +76,24 @@ class Header extends StatelessWidget {
             // Menu navigation (tablet + desktop)
             if (!isMobile)
               Row(
-                children: List.generate(_menuItems.length, (i) => TextButton(
-                  onPressed: () => Navigator.pushNamed(context, _routes[i]),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: AppText(
-                      text: _menuItems[i],
-                      fontWeight: index == i ? FontWeight.bold : FontWeight.w500,
-                      fontSize: 18,
-                      color: index == i ? primaryColor : Colors.black54,
-                    ),
-                  ),
-                )),
+                children: List.generate(
+                    _menuItems.length,
+                    (i) => TextButton(
+                          onPressed: () =>
+                              Navigator.pushNamed(context, _routes[i]),
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: AppText(
+                              text: _menuItems[i],
+                              fontWeight: index == i
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
+                              fontSize: 18,
+                              color: index == i ? primaryColor : Colors.black54,
+                            ),
+                          ),
+                        )),
               ),
 
             // Actions (panier + auth)
@@ -80,12 +102,13 @@ class Header extends StatelessWidget {
                 // Bouton favoris (si connecté)
                 if (isLoggedIn)
                   IconButton(
-                    onPressed: () => Navigator.pushNamed(context, favoritesRoute),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, favoritesRoute),
                     icon: const Icon(IconlyLight.heart, color: Colors.black54),
                     tooltip: 'Mes favoris',
                     style: IconButton.styleFrom(
                       padding: const EdgeInsets.all(12),
-                      hoverColor: primaryColor.withValues(alpha: 0.1),
+                      hoverColor: primaryColor.withAlpha(25),
                     ),
                   ),
 
@@ -98,7 +121,7 @@ class Header extends StatelessWidget {
                       tooltip: 'Panier',
                       style: IconButton.styleFrom(
                         padding: const EdgeInsets.all(12),
-                        hoverColor: primaryColor.withValues(alpha: 0.1),
+                        hoverColor: primaryColor.withAlpha(25),
                       ),
                     ),
                     if (cart.itemCount > 0)
@@ -111,10 +134,14 @@ class Header extends StatelessWidget {
                             color: primaryColor,
                             shape: BoxShape.circle,
                           ),
-                          constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                          constraints: const BoxConstraints(
+                              minWidth: 18, minHeight: 18),
                           child: Text(
                             '${cart.itemCount}',
-                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -142,7 +169,8 @@ class Header extends StatelessWidget {
                           break;
                         case 'logout':
                           auth.logout();
-                          Navigator.pushNamedAndRemoveUntil(context, homeRoute, (_) => false);
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, homeRoute, (_) => false);
                           break;
                       }
                     },
@@ -154,11 +182,14 @@ class Header extends StatelessWidget {
                           children: [
                             Text(
                               auth.user?.displayName ?? '',
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87),
                             ),
                             Text(
                               auth.user?.email ?? '',
-                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.grey[600]),
                             ),
                             const Divider(),
                           ],
@@ -198,15 +229,18 @@ class Header extends StatelessWidget {
                         value: 'logout',
                         child: Row(
                           children: [
-                            Icon(IconlyLight.logout, size: 20, color: Colors.red),
+                            Icon(IconlyLight.logout,
+                                size: 20, color: Colors.red),
                             SizedBox(width: 8),
-                            Text('Déconnexion', style: TextStyle(color: Colors.red)),
+                            Text('Déconnexion',
+                                style: TextStyle(color: Colors.red)),
                           ],
                         ),
                       ),
                     ],
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         border: Border.all(color: primaryColor),
                         borderRadius: BorderRadius.circular(5),
@@ -216,10 +250,14 @@ class Header extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 14,
-                            backgroundColor: primaryColor.withValues(alpha: 0.15),
+                            backgroundColor: primaryColor.withAlpha(38),
                             child: Text(
-                              (auth.user?.displayName ?? 'U')[0].toUpperCase(),
-                              style: const TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 14),
+                              (auth.user?.displayName ?? 'U')[0]
+                                  .toUpperCase(),
+                              style: const TextStyle(
+                                  color: primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14),
                             ),
                           ),
                           if (!isMobile) ...[
@@ -231,7 +269,8 @@ class Header extends StatelessWidget {
                             ),
                           ],
                           const SizedBox(width: 4),
-                          const Icon(Icons.arrow_drop_down, color: primaryColor),
+                          const Icon(Icons.arrow_drop_down,
+                              color: primaryColor),
                         ],
                       ),
                     ),
@@ -244,8 +283,10 @@ class Header extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
                     ),
                   ),
               ],
@@ -254,5 +295,102 @@ class Header extends StatelessWidget {
         ),
       );
     });
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+class AppDrawer extends StatelessWidget {
+  final int index;
+  const AppDrawer({super.key, required this.index});
+
+  static const List<String> _menuItems = [
+    'Accueil',
+    'Services',
+    'Prestataires',
+    'Contact',
+  ];
+
+  static const List<String> _routes = [
+    homeRoute,
+    serviceRoute,
+    prestatairesRoute,
+    contactRoute,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final isLoggedIn = auth.isAuthenticated;
+
+    return Drawer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(color: primaryColor),
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                isLoggedIn ? auth.user?.displayName ?? '' : 'Bienvenue',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+
+          // Navigation
+
+          ...List.generate(
+              _menuItems.length,
+                  (i) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: TextButton(
+                                    onPressed: () =>
+                      Navigator.pushNamed(context, _routes[i]),
+                                    child: Padding(
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: AppText(
+                      text: _menuItems[i],
+                      fontWeight: index == i
+                          ? FontWeight.bold
+                          : FontWeight.w500,
+                      fontSize: 18,
+                      color: index == i ? primaryColor : Colors.black54,
+                    ),
+                                    ),
+                                  ),
+                  )),
+
+          const Divider(),
+
+          if (isLoggedIn)
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text('Déconnexion',
+                  style: TextStyle(color: Colors.red)),
+              onTap: () {
+                auth.logout();
+                Navigator.pushNamedAndRemoveUntil(
+                    context, homeRoute, (_) => false);
+              },
+            )
+          else
+            ListTile(
+              leading: const Icon(Icons.login),
+              title: const Text('Connexion'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, loginRoute);
+              },
+            ),
+        ],
+      ),
+    );
   }
 }

@@ -6,6 +6,8 @@ import 'package:responsive_builder/responsive_builder.dart';
 
 import '../core/app_colors.dart';
 import '../core/data.dart';
+import '../core/models.dart';
+import '../core/routes.dart';
 import '../providers/category_provider.dart';
 import '../providers/providers_provider.dart';
 import '../widgets/app_button.dart';
@@ -24,6 +26,13 @@ class ServicesPage extends StatefulWidget {
 class _ServicesPageState extends State<ServicesPage> {
   String? selectedValue, selectedVille;
   final _searchCtrl = TextEditingController();
+  int selectedIndex = 1;
+  static const List<String> _mobileRoutes = [
+    homeRoute,
+    serviceRoute,
+    prestatairesRoute,
+    contactRoute,
+  ];
 
   @override
   void initState() {
@@ -55,12 +64,16 @@ class _ServicesPageState extends State<ServicesPage> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final prov = context.watch<ProvidersProvider>();
+    final catProv = context.watch<CategoryProvider>();
+    final dbCategories = catProv.categories;
 
     return ResponsiveBuilder(builder: (context, screenSize) {
       final isMobile = screenSize.isMobile;
+      final isTablet = screenSize.isTablet;
       final isDesktop = screenSize.isDesktop;
 
       return Scaffold(
+        //drawer: isMobile ? const AppDrawer(index: 1,) : null,
         body: Column(
           children: [
             const SizedBox(height: 10),
@@ -108,13 +121,50 @@ class _ServicesPageState extends State<ServicesPage> {
                     _buildFilterCard(),
                     const SizedBox(height: 20),
                     _buildPromotedBanner(prov, isMobile),
-                    _buildResultsList(width, isMobile, prov),
+                    if (catProv.loading)
+                      const Padding(
+                        padding: EdgeInsets.all(40),
+                        child: CircularProgressIndicator(),
+                      )
+                    else if (dbCategories.isNotEmpty)
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: dbCategories.map((cat) => _buildCategoryCard(context, cat, width, isMobile, isTablet, isDesktop)).toList(),
+                      ),
+
+                    //_buildResultsList(width, isMobile, prov),
+                    SizedBox(height: isMobile? 20: 40,),
+                    if(!isMobile)
+                      const FooterView(),
                   ],
                 ),
               ),
             ),
           ],
         ),
+        bottomNavigationBar: isMobile
+            ? BottomNavigationBar(
+          currentIndex: selectedIndex,
+          onTap: (index) {
+            if (index == 0) {
+              setState(() { selectedIndex = index; });
+              Navigator.pushNamed(context, _mobileRoutes[index]);
+            } else {
+              Navigator.pushNamed(context, _mobileRoutes[index]);
+            }
+          },
+          selectedItemColor: primaryColor,
+          unselectedItemColor: Colors.grey,
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(IconlyLight.home), label: 'Accueil'),
+            BottomNavigationBarItem(icon: Icon(IconlyLight.category), label: 'Services'),
+            BottomNavigationBarItem(icon: Icon(IconlyLight.search), label: 'Prestataires'),
+            BottomNavigationBarItem(icon: Icon(IconlyLight.chat), label: 'Contact'),
+          ],
+        )
+            : null,
       );
     });
   }
@@ -336,8 +386,47 @@ class _ServicesPageState extends State<ServicesPage> {
             ),
           ),
         const SizedBox(height: 30),
-        const FooterView(),
+
+        if(!isMobile)
+          const FooterView(),
       ],
     );
   }
+
+  Widget _buildCategoryCard(BuildContext context, CategoryModel cat, double width, bool isMobile, bool isTablet, bool isDesktop) {
+    return InkWell(
+      onTap: () {
+        Navigator.pushNamed(context, prestatairesRoute, arguments: {'category': cat.name});
+      },
+      child: Card(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 2,
+        child: SizedBox(
+          width: isMobile ? width * 0.4 : isTablet ? 300 : width * 0.2,
+          height: isDesktop ? 250 : isTablet ? 250 : 200,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 15,
+            children: [
+              CircleAvatar(
+                radius: isMobile ? 25 : 35,
+                backgroundColor: primaryColor.withOpacity(0.1),
+                child: Icon(cat.iconData, size: isMobile ? 25 : 35, color: primaryColor),
+              ),
+              AppText(text: cat.name, fontSize: isMobile ? 14 : 16, fontWeight: FontWeight.w600),
+              if (cat.providerCount > 0)
+                AppText(
+                  text: "${cat.providerCount}+ prestataires",
+                  fontWeight: FontWeight.bold,
+                  color: primaryColor,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 }

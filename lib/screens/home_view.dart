@@ -314,14 +314,14 @@ class _HomeViewState extends State<HomeView> {
             spacing: 10,
             runSpacing: 10,
             children: dbCategories.map((cat) => _buildCategoryCard(context, cat, width, isMobile, isTablet, isDesktop)).toList(),
-          )
-        else
+          ),
+        /*else
           // Fallback sur les services statiques si la base est vide
           Wrap(
             spacing: 10,
             runSpacing: 10,
             children: services.map((service) => _buildStaticServiceCard(context, service, width, isMobile, isTablet, isDesktop)).toList(),
-          ),
+          ),*/
         const SizedBox(height: 30),
         AppButton(
           text: 'Voir les services',

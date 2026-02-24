@@ -31,6 +31,7 @@ class _HomePageState extends State<HomePage> {
       final isMobile = screenSize.isMobile;
 
       return Scaffold(
+        //drawer: isMobile ? const AppDrawer(index: 0,) : null,
         body: Column(
           children: [
             const SizedBox(height: 10),
@@ -40,7 +41,8 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   children: [
                     const HomeView(),
-                    const FooterView(),
+                    if (!isMobile)
+                      const FooterView(),
                   ],
                 ),
               ),

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 // ── UI-only models (utilisent IconData, non sérialisables) ──
@@ -56,14 +57,14 @@ class CategoryModel {
         return Icons.checkroom;
       case 'car':
       case 'car_detailed':
-        return Icons.directions_car;
+        return CupertinoIcons.car_detailed;
       case 'building':
       case 'building_2_fill':
         return Icons.apartment;
       case 'music':
       case 'music_note':
       case 'music_note_2':
-        return Icons.music_note;
+        return CupertinoIcons.music_note_2;
       case 'camera':
         return Icons.camera_alt;
       case 'restaurant':

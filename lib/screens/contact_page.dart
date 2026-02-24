@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconly/iconly.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/app_colors.dart';
 import '../core/constants.dart';
 import '../core/models.dart';
+import '../core/routes.dart';
 import '../widgets/header.dart';
 
 class ContactPage extends StatefulWidget {
@@ -22,6 +24,14 @@ class _ContactPageState extends State<ContactPage> {
   final _phoneCtrl = TextEditingController();
   final _messageCtrl = TextEditingController();
   bool _sending = false;
+
+  int selectedIndex = 3;
+  static const List<String> _mobileRoutes = [
+    homeRoute,
+    serviceRoute,
+    prestatairesRoute,
+    contactRoute,
+  ];
 
   @override
   void dispose() {
@@ -100,6 +110,28 @@ class _ContactPageState extends State<ContactPage> {
             ),
           ],
         ),
+        bottomNavigationBar: isMobile
+            ? BottomNavigationBar(
+          currentIndex: selectedIndex,
+          onTap: (index) {
+            if (index == 0) {
+              setState(() { selectedIndex = index; });
+              Navigator.pushNamed(context, _mobileRoutes[index]);
+            } else {
+              Navigator.pushNamed(context, _mobileRoutes[index]);
+            }
+          },
+          selectedItemColor: primaryColor,
+          unselectedItemColor: Colors.grey,
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(IconlyLight.home), label: 'Accueil'),
+            BottomNavigationBarItem(icon: Icon(IconlyLight.category), label: 'Services'),
+            BottomNavigationBarItem(icon: Icon(IconlyLight.search), label: 'Prestataires'),
+            BottomNavigationBarItem(icon: Icon(IconlyLight.chat), label: 'Contact'),
+          ],
+        )
+            : null,
       );
     });
   }
